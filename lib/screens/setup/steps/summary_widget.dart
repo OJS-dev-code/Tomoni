@@ -1,73 +1,55 @@
 import 'package:flutter/material.dart';
 import '../../../constants/app_constants.dart';
-import '../../../widgets/custom_button.dart';
+import '../../../widgets/step_navigation_buttons.dart';
+import '../../../widgets/step_header.dart';
+import '../../../services/user_data_service.dart';
 
 class SummaryWidget extends StatelessWidget {
   final PageController pageController;
+  final Map<String, dynamic> data;
 
-  const SummaryWidget({super.key, required this.pageController});
+  const SummaryWidget({
+    super.key, 
+    required this.pageController,
+    required this.data,
+  });
 
   @override
   Widget build(BuildContext context) {
+    String purposesText = (data['purposes'] as Set<String>).join(', ');
+    String hobbiesText = (data['hobbies'] as Set<String>).join(', ');
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 40),
-          const Text(
-            "선택하신 내용을\n확인해주세요",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 30),
+          const StepHeader(title: "선택하신 내용을\n확인해주세요"),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  _buildSummaryItem("성별/생년월일", "여성 / 2000.01.01"),
-                  _buildSummaryItem("일본어 수준", "초급"),
-                  _buildSummaryItem("공부 기간", "3개월"),
-                  _buildSummaryItem("관심사", "여행, 음악, 요리, 일본 드라마"),
-                  _buildSummaryItem("AI 말하기 속도", "현지인속도"),
-                  _buildSummaryItem("대화 처음부터 보기", "예"),
-                  _buildSummaryItem("한국어 번역", "예"),
-                  _buildSummaryItem("한국어 발음", "아니오"),
+                  _buildSummaryItem("성별/생년월일", "${data['gender']} / ${data['birthDate']}"),
+                  _buildSummaryItem("일본어 수준", data['level']),
+                  _buildSummaryItem("공부 기간", data['duration']),
+                  _buildSummaryItem("학습 목적", purposesText.isEmpty ? "선택 안 함" : purposesText),
+                  _buildSummaryItem("관심사", hobbiesText.isEmpty ? "선택 안 함" : hobbiesText),
+                  _buildSummaryItem("AI 말하기 속도", data['aiSpeed']),
+                  _buildSummaryItem("대화 처음부터 보기", data['showContentFromStart']),
+                  _buildSummaryItem("한국어 번역", data['showKoreanTranslation']),
+                  _buildSummaryItem("한국어 발음", data['showKoreanPronunciation']),
                 ],
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 40.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 12.0),
-                    child: CustomButton(
-                      text: "이전",
-                      isPrimary: false,
-                      onPressed: () => pageController.previousPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.ease,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: CustomButton(
-                    text: "시작하기",
-                    onPressed: () {
-                      Navigator.of(context).pushNamedAndRemoveUntil('/main', (route) => false);
-                    },
-                  ),
-                ),
-              ],
-            ),
+          StepNavigationButtons(
+            pageController: pageController,
+            nextText: "시작하기",
+            onNext: () {
+              UserDataService().updateAll(data);
+              // 회원가입 페이지로 이동
+              Navigator.of(context).pushNamed('/signup');
+            },
           ),
         ],
       ),

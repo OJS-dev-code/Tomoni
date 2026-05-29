@@ -1,19 +1,47 @@
 import 'package:flutter/material.dart';
 import '../../../constants/app_constants.dart';
-import '../../../widgets/custom_button.dart';
+import '../../../widgets/step_navigation_buttons.dart';
+import '../../../widgets/step_header.dart';
 
 class Step2Widget extends StatefulWidget {
   final PageController pageController;
+  final Function(String level) onCompleted;
 
-  const Step2Widget({super.key, required this.pageController});
+  const Step2Widget({
+    super.key, 
+    required this.pageController,
+    required this.onCompleted,
+  });
 
   @override
-  _Step2WidgetState createState() => _Step2WidgetState();
+  State<Step2Widget> createState() => _Step2WidgetState();
 }
 
 class _Step2WidgetState extends State<Step2Widget> {
   String? selectedLevel;
-  final List<String> levels = ["입문", "초급", "중급", "중상급"];
+  
+  final List<Map<String, dynamic>> levels = [
+    {
+      "title": "입문",
+      "desc": "매우 기초적이고 일상적인 표현",
+      "color": AppColors.pastelGreen
+    },
+    {
+      "title": "초급",
+      "desc": "기초적이고 친숙한 주제 표현",
+      "color": AppColors.pastelYellow
+    },
+    {
+      "title": "중급",
+      "desc": "공통 주제에 대한 회의, 연설 이해",
+      "color": AppColors.heavyYellow
+    },
+    {
+      "title": "중상급",
+      "desc": "복잡한 문법으로 구성된 말 이해",
+      "color": AppColors.pinkyRed
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -22,46 +50,52 @@ class _Step2WidgetState extends State<Step2Widget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 40),
-          const Text(
-            "일본어 실력이\n어느 정도인가요?",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 40),
+          const StepHeader(title: "일본어 실력이\n어느 정도인가요?"),
           Column(
             children: levels.map((level) {
-              bool isSelected = selectedLevel == level;
+              bool isSelected = selectedLevel == level["title"];
+              Color levelColor = level["color"];
+              
               return GestureDetector(
-                onTap: () => setState(() => selectedLevel = level),
+                onTap: () => setState(() => selectedLevel = level["title"]),
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 12),
-                  height: 60,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.white,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isSelected ? AppColors.primary : AppColors.lightGrey1,
-                      width: isSelected ? 2 : 1,
+                      color: isSelected ? levelColor : AppColors.lightGrey1,
+                      width: 2,
                     ),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        level,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? AppColors.primary : Colors.black87,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              level["title"],
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: levelColor,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              level["desc"],
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.darkGrey,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       if (isSelected)
-                        const Icon(Icons.check_circle, color: AppColors.primary)
+                        Icon(Icons.check_circle, color: levelColor)
                     ],
                   ),
                 ),
@@ -69,36 +103,16 @@ class _Step2WidgetState extends State<Step2Widget> {
             }).toList(),
           ),
           const Spacer(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 40.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 12.0),
-                    child: CustomButton(
-                      text: "이전",
-                      isPrimary: false,
-                      onPressed: () => widget.pageController.previousPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.ease,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: CustomButton(
-                    text: "다음",
-                    onPressed: selectedLevel != null
-                        ? () => widget.pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.ease)
-                        : null,
-                  ),
-                ),
-              ],
-            ),
+          StepNavigationButtons(
+            pageController: widget.pageController,
+            isNextEnabled: selectedLevel != null,
+            onNext: () {
+              widget.onCompleted(selectedLevel!);
+              widget.pageController.nextPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.ease,
+              );
+            },
           ),
         ],
       ),

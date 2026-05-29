@@ -1,15 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../constants/app_constants.dart';
-import '../../../widgets/custom_button.dart';
+import '../../../widgets/step_navigation_buttons.dart';
+import '../../../widgets/step_header.dart';
 
 class Step1Widget extends StatefulWidget {
   final PageController pageController;
+  final Function(String gender, int year, int month, int day) onCompleted;
 
-  const Step1Widget({super.key, required this.pageController});
+  const Step1Widget({
+    super.key, 
+    required this.pageController,
+    required this.onCompleted,
+  });
 
   @override
-  _Step1WidgetState createState() => _Step1WidgetState();
+  State<Step1Widget> createState() => _Step1WidgetState();
 }
 
 class _Step1WidgetState extends State<Step1Widget> {
@@ -20,25 +26,25 @@ class _Step1WidgetState extends State<Step1Widget> {
 
   final List<int> years = List.generate(100, (index) => DateTime.now().year - index);
   final List<int> months = List.generate(12, (index) => index + 1);
-  final List<int> days = List.generate(31, (index) => index + 1);
+
+  List<int> get daysInMonth {
+    int lastDay = DateTime(selectedYear, selectedMonth + 1, 0).day;
+    return List.generate(lastDay, (index) => index + 1);
+  }
 
   @override
   Widget build(BuildContext context) {
+    List<int> currentDays = daysInMonth;
+    if (selectedDay > currentDays.length) {
+      selectedDay = currentDays.length;
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 40),
-          const Text(
-            "성별과 생년월일을\n입력해주세요",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 40),
+          const StepHeader(title: "성별과 생년월일을\n입력해주세요"),
           const Text("성별", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           Row(
@@ -55,22 +61,40 @@ class _Step1WidgetState extends State<Step1Widget> {
             height: 150,
             child: Row(
               children: [
-                _buildPicker(years, (val) => setState(() => selectedYear = years[val]), years.indexOf(selectedYear), "년"),
-                _buildPicker(months, (val) => setState(() => selectedMonth = months[val]), months.indexOf(selectedMonth), "월"),
-                _buildPicker(days, (val) => setState(() => selectedDay = days[val]), days.indexOf(selectedDay), "일"),
+                _buildPicker(
+                  years, 
+                  (val) => setState(() => selectedYear = years[val]), 
+                  years.indexOf(selectedYear), 
+                  "년"
+                ),
+                _buildPicker(
+                  months, 
+                  (val) => setState(() => selectedMonth = months[val]), 
+                  months.indexOf(selectedMonth), 
+                  "월"
+                ),
+                _buildPicker(
+                  currentDays, 
+                  (val) => setState(() => selectedDay = currentDays[val]), 
+                  currentDays.indexOf(selectedDay), 
+                  "일",
+                  key: ValueKey("$selectedYear-$selectedMonth")
+                ),
               ],
             ),
           ),
           const Spacer(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 40.0),
-            child: CustomButton(
-              text: "다음",
-              onPressed: (selectedGender != null)
-                  ? () => widget.pageController.nextPage(
-                      duration: const Duration(milliseconds: 300), curve: Curves.ease)
-                  : null,
-            ),
+          StepNavigationButtons(
+            pageController: widget.pageController,
+            showPrevious: false,
+            isNextEnabled: selectedGender != null,
+            onNext: () {
+              widget.onCompleted(selectedGender!, selectedYear, selectedMonth, selectedDay);
+              widget.pageController.nextPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.ease,
+              );
+            },
           ),
         ],
       ),
@@ -102,12 +126,13 @@ class _Step1WidgetState extends State<Step1Widget> {
     );
   }
 
-  Widget _buildPicker(List<int> items, ValueChanged<int> onSelectedItemChanged, int initialIndex, String unit) {
+  Widget _buildPicker(List<int> items, ValueChanged<int> onSelectedItemChanged, int initialIndex, String unit, {Key? key}) {
     return Expanded(
       child: Stack(
         alignment: Alignment.center,
         children: [
           CupertinoPicker(
+            key: key,
             itemExtent: 40,
             scrollController: FixedExtentScrollController(initialItem: initialIndex),
             onSelectedItemChanged: onSelectedItemChanged,

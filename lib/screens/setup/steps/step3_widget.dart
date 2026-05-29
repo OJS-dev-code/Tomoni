@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
 import '../../../constants/app_constants.dart';
-import '../../../widgets/custom_button.dart';
+import '../../../widgets/step_navigation_buttons.dart';
+import '../../../widgets/step_header.dart';
 
 class Step3Widget extends StatefulWidget {
   final PageController pageController;
+  final Function(String duration) onCompleted;
 
-  const Step3Widget({super.key, required this.pageController});
+  const Step3Widget({
+    super.key, 
+    required this.pageController,
+    required this.onCompleted,
+  });
 
   @override
-  _Step3WidgetState createState() => _Step3WidgetState();
+  State<Step3Widget> createState() => _Step3WidgetState();
 }
 
 class _Step3WidgetState extends State<Step3Widget> {
   int? selectedDurationIndex;
-  final List<String> durations = ["일주일", "한달", "3개월", "6개월", "1년 이상"];
+  final List<String> durations = [
+    "3개월 미만",
+    "3개월 ~ 6개월 미만",
+    "6개월 ~ 1년 미만",
+    "1년 ~ 2년 미만",
+    "2년 이상"
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -22,36 +34,31 @@ class _Step3WidgetState extends State<Step3Widget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 40),
-          const Text(
-            "일본어를 공부한 지\n얼마나 되셨나요?",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 80),
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                height: 2,
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                color: AppColors.lightGrey1,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(durations.length, (index) {
-                  bool isSelected = selectedDurationIndex == index;
-                  return GestureDetector(
-                    onTap: () => setState(() => selectedDurationIndex = index),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+          const StepHeader(title: "일본어를 공부한 지\n얼마나 되셨나요?"),
+          Expanded(
+            child: ListView.builder(
+              itemCount: durations.length,
+              itemBuilder: (context, index) {
+                bool isSelected = selectedDurationIndex == index;
+                return GestureDetector(
+                  onTap: () => setState(() => selectedDurationIndex = index),
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    height: 60,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppColors.primary.withOpacity(0.05) : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected ? AppColors.primary : AppColors.lightGrey1,
+                        width: isSelected ? 2 : 1,
+                      ),
+                    ),
+                    child: Row(
                       children: [
                         Container(
-                          width: 20,
-                          height: 20,
+                          width: 22,
+                          height: 22,
                           decoration: BoxDecoration(
                             color: isSelected ? AppColors.primary : Colors.white,
                             shape: BoxShape.circle,
@@ -60,58 +67,39 @@ class _Step3WidgetState extends State<Step3Widget> {
                               width: 2,
                             ),
                           ),
+                          child: isSelected 
+                            ? const Center(child: Icon(Icons.circle, size: 10, color: Colors.white))
+                            : null,
                         ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: 60,
-                          child: Text(
-                            durations[index],
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                              color: isSelected ? AppColors.primary : Colors.black54,
-                            ),
+                        const SizedBox(width: 15),
+                        Text(
+                          durations[index],
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected ? AppColors.primary : Colors.black87,
                           ),
                         ),
+                        const Spacer(),
+                        if (isSelected)
+                          const Icon(Icons.check_circle, color: AppColors.primary, size: 20)
                       ],
                     ),
-                  );
-                }),
-              ),
-            ],
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 40.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 12.0),
-                    child: CustomButton(
-                      text: "이전",
-                      isPrimary: false,
-                      onPressed: () => widget.pageController.previousPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.ease,
-                      ),
-                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: CustomButton(
-                    text: "다음",
-                    onPressed: selectedDurationIndex != null
-                        ? () => widget.pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.ease)
-                        : null,
-                  ),
-                ),
-              ],
+                );
+              },
             ),
+          ),
+          StepNavigationButtons(
+            pageController: widget.pageController,
+            isNextEnabled: selectedDurationIndex != null,
+            onNext: () {
+              widget.onCompleted(durations[selectedDurationIndex!]);
+              widget.pageController.nextPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.ease,
+              );
+            },
           ),
         ],
       ),

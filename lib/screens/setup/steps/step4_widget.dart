@@ -1,43 +1,50 @@
 import 'package:flutter/material.dart';
 import '../../../constants/app_constants.dart';
-import '../../../widgets/custom_button.dart';
+import '../../../widgets/step_navigation_buttons.dart';
+import '../../../widgets/step_header.dart';
+import '../../../widgets/direct_input_field.dart';
 
 class Step4Widget extends StatefulWidget {
   final PageController pageController;
+  final Function(Set<String> purposes) onCompleted;
 
-  const Step4Widget({super.key, required this.pageController});
+  const Step4Widget({
+    super.key, 
+    required this.pageController,
+    required this.onCompleted,
+  });
 
   @override
-  _Step4WidgetState createState() => _Step4WidgetState();
+  State<Step4Widget> createState() => _Step4WidgetState();
 }
 
 class _Step4WidgetState extends State<Step4Widget> {
-  final List<Map<String, String>> hobbies = [
-    {"label": "여행", "emoji": "✈️"},
-    {"label": "음악", "emoji": "🎵"},
-    {"label": "영화", "emoji": "🎬"},
-    {"label": "게임", "emoji": "🎮"},
-    {"label": "요리", "emoji": "🍳"},
-    {"label": "운동", "emoji": "🏋️"},
-    {"label": "독서", "emoji": "📚"},
-    {"label": "만화/애니", "emoji": "📺"},
-    {"label": "기술", "emoji": "💻"},
-    {"label": "비즈니스", "emoji": "👔"},
+  final List<String> purposes = [
+    "취미/자기계발",
+    "여행",
+    "현지생활",
+    "취업/비즈니스",
+    "시험/자격증(JLPT 등)",
+    "덕질(애니/드라마)",
   ];
   
-  final Set<String> selectedHobbies = {};
-  final List<String> customHobbies = [];
+  final Set<String> selectedPurposes = {};
+  final List<String> customPurposes = [];
   final TextEditingController _inputController = TextEditingController();
 
-  void _addCustomHobby() {
+  void _addCustomPurpose() {
     String text = _inputController.text.trim();
-    if (text.isNotEmpty && !customHobbies.contains(text) && !hobbies.any((h) => h["label"] == text)) {
-      setState(() {
-        customHobbies.add(text);
-        selectedHobbies.add(text);
-        _inputController.clear();
-      });
-    }
+    if (text.isEmpty) return;
+
+    setState(() {
+      if (purposes.contains(text) || customPurposes.contains(text)) {
+        selectedPurposes.add(text);
+      } else {
+        customPurposes.add(text);
+        selectedPurposes.add(text);
+      }
+      _inputController.clear();
+    });
   }
 
   @override
@@ -45,118 +52,62 @@ class _Step4WidgetState extends State<Step4Widget> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 40),
-          const Text(
-            "평소 좋아하는 취미나\n관심사가 무엇인가요?",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 20),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const StepHeader(
+                    title: "일본어를 배우는\n목적이 무엇인가요?",
+                    subtitle: "목적에 맞는 맞춤형 대화 상황을 준비해드려요 (다중 선택 가능)",
+                  ),
                   Wrap(
                     spacing: 10,
                     runSpacing: 12,
                     children: [
-                      ...hobbies.map((hobby) {
-                        bool isSelected = selectedHobbies.contains(hobby["label"]);
-                        return _buildHobbyChip(hobby["label"]!, hobby["emoji"]!, isSelected);
+                      ...purposes.map((purpose) {
+                        bool isSelected = selectedPurposes.contains(purpose);
+                        return _buildPurposeChip(purpose, isSelected);
                       }),
-                      ...customHobbies.map((hobby) {
-                        bool isSelected = selectedHobbies.contains(hobby);
-                        return _buildCustomHobbyChip(hobby, isSelected);
+                      ...customPurposes.map((purpose) {
+                        bool isSelected = selectedPurposes.contains(purpose);
+                        return _buildCustomPurposeChip(purpose, isSelected);
                       }),
                     ],
                   ),
                   const SizedBox(height: 30),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _inputController,
-                          decoration: InputDecoration(
-                            hintText: "직접 입력",
-                            hintStyle: const TextStyle(color: AppColors.lightGrey1),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.lightGrey1),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.lightGrey1),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: _addCustomHobby,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                        ),
-                        child: const Text("추가"),
-                      ),
-                    ],
+                  DirectInputField(
+                    controller: _inputController,
+                    onAdd: _addCustomPurpose,
                   ),
                   const SizedBox(height: 20),
                 ],
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 40.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 12.0),
-                    child: CustomButton(
-                      text: "이전",
-                      isPrimary: false,
-                      onPressed: () => widget.pageController.previousPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.ease,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: CustomButton(
-                    text: "다음",
-                    onPressed: selectedHobbies.isNotEmpty
-                        ? () => widget.pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.ease)
-                        : null,
-                  ),
-                ),
-              ],
-            ),
+          StepNavigationButtons(
+            pageController: widget.pageController,
+            isNextEnabled: selectedPurposes.isNotEmpty,
+            onNext: () {
+              widget.onCompleted(selectedPurposes);
+              widget.pageController.nextPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.ease,
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHobbyChip(String label, String emoji, bool isSelected) {
+  Widget _buildPurposeChip(String label, bool isSelected) {
     return GestureDetector(
       onTap: () {
         setState(() {
-          if (isSelected) selectedHobbies.remove(label);
-          else selectedHobbies.add(label);
+          if (isSelected) selectedPurposes.remove(label);
+          else selectedPurposes.add(label);
         });
       },
       child: Container(
@@ -167,7 +118,7 @@ class _Step4WidgetState extends State<Step4Widget> {
           border: Border.all(color: isSelected ? AppColors.primary : AppColors.lightGrey1),
         ),
         child: Text(
-          "$emoji $label",
+          label,
           style: TextStyle(
             color: isSelected ? Colors.white : Colors.black87,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -177,12 +128,12 @@ class _Step4WidgetState extends State<Step4Widget> {
     );
   }
 
-  Widget _buildCustomHobbyChip(String label, bool isSelected) {
+  Widget _buildCustomPurposeChip(String label, bool isSelected) {
     return GestureDetector(
       onTap: () {
         setState(() {
-          if (isSelected) selectedHobbies.remove(label);
-          else selectedHobbies.add(label);
+          if (isSelected) selectedPurposes.remove(label);
+          else selectedPurposes.add(label);
         });
       },
       child: Container(
@@ -206,8 +157,8 @@ class _Step4WidgetState extends State<Step4Widget> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  customHobbies.remove(label);
-                  selectedHobbies.remove(label);
+                  customPurposes.remove(label);
+                  selectedPurposes.remove(label);
                 });
               },
               child: Icon(
