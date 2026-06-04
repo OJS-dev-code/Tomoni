@@ -15,13 +15,21 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _handleLogin() async {
-    // 1. 임시 로그인 성공 처리 (나중에 Firebase 연동)
+    // 1. 임시 로그인 성공 처리
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', true);
 
+    // 2. 설정 완료 여부 확인
+    final bool hasCompletedSetup = prefs.getBool('hasCompletedSetup') ?? false;
+
     if (mounted) {
-      // 2. 메인 화면으로 이동 (뒤로가기 방지)
-      Navigator.of(context).pushNamedAndRemoveUntil('/main', (route) => false);
+      if (hasCompletedSetup) {
+        // 설정이 완료된 기존 사용자라면 메인 홈으로
+        Navigator.of(context).pushNamedAndRemoveUntil('/main', (route) => false);
+      } else {
+        // 새로운 사용자라면 설정 질문 페이지로
+        Navigator.of(context).pushNamedAndRemoveUntil('/setup', (route) => false);
+      }
     }
   }
 

@@ -93,7 +93,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             ],
                           ),
 
-                        // 마지막 페이지 - 시작하기 버튼
+                        // 마지막 페이지 - 회원가입으로 이동
                         if (index == items.length - 1)
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -108,7 +108,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                               ),
                             ),
                             onPressed: () =>
-                                Navigator.pushReplacementNamed(context, '/setup'),
+                                Navigator.pushNamed(context, '/signup'), // /setup 대신 /signup으로
                             child: const Text(
                               "시작하기",
                               style: TextStyle(fontWeight: FontWeight.bold),

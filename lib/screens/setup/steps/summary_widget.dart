@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constants/app_constants.dart';
 import '../../../widgets/step_navigation_buttons.dart';
 import '../../../widgets/step_header.dart';
@@ -45,10 +46,18 @@ class SummaryWidget extends StatelessWidget {
           StepNavigationButtons(
             pageController: pageController,
             nextText: "시작하기",
-            onNext: () {
+            onNext: () async {
+              // 데이터를 서비스에 저장
               UserDataService().updateAll(data);
-              // 회원가입 페이지로 이동
-              Navigator.of(context).pushNamed('/signup');
+              
+              // 설정 완료 상태 저장
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('hasCompletedSetup', true);
+              
+              // 메인 화면으로 이동
+              if (context.mounted) {
+                Navigator.of(context).pushNamedAndRemoveUntil('/main', (route) => false);
+              }
             },
           ),
         ],
