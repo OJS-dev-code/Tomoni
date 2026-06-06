@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -18,29 +18,90 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Tomoni project with flutter">
+  <meta name="description" content="Tomoni — 일본어 경어 학습">
+  <meta name="theme-color" content="#3396FF">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="tomoni_flutter">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tomoni">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>tomoni_flutter</title>
+  <title>Tomoni</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background-color: #3396FF;
+      overflow: hidden;
+    }
+
+    #boot-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+      z-index: 10000;
+    }
+
+    #boot-progress::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -40%;
+      width: 40%;
+      height: 100%;
+      background: #ffffff;
+      animation: boot-progress 1.2s ease-in-out infinite;
+    }
+
+    @keyframes boot-progress {
+      0% { left: -40%; }
+      100% { left: 100%; }
+    }
+
+    #boot-splash {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #3396FF;
+      z-index: 9999;
+    }
+
+    #boot-splash .logo {
+      color: #ffffff;
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
+  <div id="boot-progress" aria-hidden="true"></div>
+  <div id="boot-splash" aria-hidden="true">
+    <div class="logo">Tomoni</div>
+  </div>
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var splash = document.getElementById('boot-splash');
+      var progress = document.getElementById('boot-progress');
+      if (splash) splash.remove();
+      if (progress) progress.remove();
+    });
+  </script>
 </body>
 </html>
