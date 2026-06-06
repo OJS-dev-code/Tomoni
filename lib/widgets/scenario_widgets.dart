@@ -6,14 +6,14 @@ import '../constants/app_constants.dart';
 class ScenarioPageLayout extends StatelessWidget {
   final String title;
   final Widget child;
-  final VoidCallback onConfirm;
+  final VoidCallback? onConfirm;
   final String confirmText;
 
   const ScenarioPageLayout({
     super.key,
     required this.title,
     required this.child,
-    required this.onConfirm,
+    this.onConfirm,
     this.confirmText = "확인",
   });
 
@@ -55,7 +55,9 @@ class ScenarioPageLayout extends StatelessWidget {
               alignment: Alignment.bottomRight,
               child: GestureDetector(
                 onTap: onConfirm,
-                child: Container(
+                child: Opacity(
+                  opacity: onConfirm == null ? 0.5 : 1,
+                  child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -69,6 +71,7 @@ class ScenarioPageLayout extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                ),
                 ),
               ),
             ),

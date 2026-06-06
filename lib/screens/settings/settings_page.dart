@@ -3,6 +3,8 @@ import '../../constants/app_constants.dart';
 import '../../widgets/settings_widgets.dart';
 import '../../widgets/custom_toggle.dart';
 import '../../services/user_data_service.dart';
+import '../../services/api_service.dart';
+import '../../services/auth_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -43,12 +45,12 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
-  void _saveSettings() {
+  Future<void> _saveSettings() async {
     if (purposes.isEmpty || hobbies.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: const Text("적어도 1개의 목적, 관심사를 가져야 합니다."),
-            duration: const Duration(seconds: 2)
+            content: Text("적어도 1개의 목적, 관심사를 가져야 합니다."),
+            duration: Duration(seconds: 2)
         ),
       );
       _loadCurrentData(); // 저장이 거부되었으므로 UI 상태 복구
@@ -65,6 +67,24 @@ class _SettingsPageState extends State<SettingsPage> {
       'hobbies': hobbies,
     };
     _userService.updateAll(updatedData);
+
+    final token = await AuthService.instance.getIdToken();
+    if (token != null) {
+      try {
+        await ApiService.instance.updateProfile(token, _userService.data);
+      } on ApiException catch (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("서버 동기화 실패: ${error.message}")),
+          );
+        }
+        return;
+      }
+    }
+
+    if (!mounted) {
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("설정이 저장되었습니다."),

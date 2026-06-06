@@ -1,7 +1,11 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import '../constants/app_constants.dart';
+import '../services/api_service.dart';
+import '../services/auth_service.dart';
+import '../services/user_data_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,7 +14,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -28,20 +33,33 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   Future<void> _checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    await Future<void>.delayed(const Duration(milliseconds: 1500));
 
-    Timer(const Duration(milliseconds: 1500), () {
-      if (mounted) {
-        if (isLoggedIn) {
-          // 로그인 되어있으면 바로 메인으로
-          Navigator.of(context).pushReplacementNamed('/main');
-        } else {
-          // 아니면 온보딩으로
-          Navigator.of(context).pushReplacementNamed('/onboarding');
+    if (!mounted) {
+      return;
+    }
+
+    final user = AuthService.instance.currentUser;
+    if (user != null) {
+      Map<String, dynamic> profile = UserDataService().data;
+      try {
+        final token = await AuthService.instance.getIdToken();
+        if (token != null) {
+          profile = await ApiService.instance.getProfile(token);
+          ApiService.instance.applyProfileToUserData(profile);
         }
+      } catch (_) {
+        // 프로필 로드 실패 시에도 로그인 상태는 유지
       }
-    });
+
+      if (mounted) {
+        final route = ApiService.instance.routeAfterAuth(profile);
+        Navigator.of(context).pushReplacementNamed(route);
+      }
+      return;
+    }
+
+    Navigator.of(context).pushReplacementNamed('/login');
   }
 
   @override

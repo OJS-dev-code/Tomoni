@@ -2,6 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../constants/app_constants.dart';
 import '../models/feedback_note.dart';
+import '../services/app_refresh.dart';
+import '../services/api_service.dart';
+import '../services/note_service.dart';
 
 class HomeCalendar extends StatefulWidget {
   const HomeCalendar({super.key});
@@ -12,11 +15,44 @@ class HomeCalendar extends StatefulWidget {
 
 class _HomeCalendarState extends State<HomeCalendar> {
   DateTime _focusedDay = DateTime.now();
+  List<FeedbackNote> _notes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    AppRefresh.notesChanged.addListener(_onNotesChanged);
+    _loadNotes();
+  }
+
+  @override
+  void dispose() {
+    AppRefresh.notesChanged.removeListener(_onNotesChanged);
+    super.dispose();
+  }
+
+  void _onNotesChanged() {
+    _loadNotes();
+  }
+
+  Future<void> _loadNotes() async {
+    try {
+      final notes = await NoteService.instance.getNotes(
+        year: _focusedDay.year,
+        month: _focusedDay.month,
+      );
+      if (!mounted) return;
+      setState(() => _notes = notes);
+    } on ApiException catch (_) {
+      if (!mounted) return;
+      setState(() => _notes = []);
+    }
+  }
 
   void _updateMonth(DateTime newDate) {
     setState(() {
       _focusedDay = newDate;
     });
+    _loadNotes();
   }
 
   // 대한민국 공휴일 체크 로직 (양력 기준)
@@ -57,6 +93,7 @@ class _HomeCalendarState extends State<HomeCalendar> {
           _CalendarGrid(
             focusedDay: _focusedDay,
             isHoliday: _isHoliday,
+            notes: _notes,
           ),
         ],
       ),
@@ -173,10 +210,12 @@ class _CalendarHeader extends StatelessWidget {
 class _CalendarGrid extends StatelessWidget {
   final DateTime focusedDay;
   final bool Function(DateTime) isHoliday;
+  final List<FeedbackNote> notes;
 
   const _CalendarGrid({
     required this.focusedDay,
     required this.isHoliday,
+    required this.notes,
   });
 
   @override
@@ -225,9 +264,9 @@ class _CalendarGrid extends StatelessWidget {
             bool isToday = current.year == DateTime.now().year && current.month == DateTime.now().month && current.day == DateTime.now().day;
 
             // 해당 날짜의 피드백 노트 개수 확인
-            final noteCount = sampleNotes.where((note) => 
-              note.date.year == current.year && 
-              note.date.month == current.month && 
+            final noteCount = notes.where((note) =>
+              note.date.year == current.year &&
+              note.date.month == current.month &&
               note.date.day == current.day).length;
 
             Color? noteColor;

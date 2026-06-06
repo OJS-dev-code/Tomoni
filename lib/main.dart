@@ -1,4 +1,7 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+
+import 'firebase_options.dart';
 import 'theme/app_theme.dart';
 import 'constants/app_constants.dart';
 import 'screens/onboarding/onboarding_page.dart';
@@ -8,7 +11,11 @@ import 'screens/main_screen.dart';
 import 'screens/auth/login_page.dart';
 import 'screens/auth/signup_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 

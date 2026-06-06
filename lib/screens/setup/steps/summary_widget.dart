@@ -1,23 +1,71 @@
 import 'package:flutter/material.dart';
+
 import '../../../constants/app_constants.dart';
 import '../../../widgets/step_navigation_buttons.dart';
 import '../../../widgets/step_header.dart';
 import '../../../services/user_data_service.dart';
+import '../../../services/api_service.dart';
+import '../../../services/auth_service.dart';
 
-class SummaryWidget extends StatelessWidget {
+class SummaryWidget extends StatefulWidget {
   final PageController pageController;
   final Map<String, dynamic> data;
 
   const SummaryWidget({
-    super.key, 
+    super.key,
     required this.pageController,
     required this.data,
   });
 
   @override
+  State<SummaryWidget> createState() => _SummaryWidgetState();
+}
+
+class _SummaryWidgetState extends State<SummaryWidget> {
+  bool _isSaving = false;
+
+  Future<void> _completeSetup() async {
+    setState(() => _isSaving = true);
+
+    UserDataService().updateAll(widget.data);
+
+    try {
+      final token = await AuthService.instance.getIdToken();
+      if (token != null) {
+        final profile = await ApiService.instance.updateProfile(
+          token,
+          UserDataService().data,
+        );
+        ApiService.instance.applyProfileToUserData(profile);
+      }
+
+      if (mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/main', (route) => false);
+      }
+    } on ApiException catch (error) {
+      _showMessage(error.message);
+    } catch (_) {
+      _showMessage('프로필 저장에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    String purposesText = (data['purposes'] as Set<String>).join(', ');
-    String hobbiesText = (data['hobbies'] as Set<String>).join(', ');
+    String purposesText = (widget.data['purposes'] as Set<String>).join(', ');
+    String hobbiesText = (widget.data['hobbies'] as Set<String>).join(', ');
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30.0),
@@ -29,27 +77,33 @@ class SummaryWidget extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  _buildSummaryItem("성별/생년월일", "${data['gender']} / ${data['birthDate']}"),
-                  _buildSummaryItem("일본어 수준", data['level']),
-                  _buildSummaryItem("공부 기간", data['duration']),
-                  _buildSummaryItem("학습 목적", purposesText.isEmpty ? "선택 안 함" : purposesText),
-                  _buildSummaryItem("관심사", hobbiesText.isEmpty ? "선택 안 함" : hobbiesText),
-                  _buildSummaryItem("AI 말하기 속도", data['aiSpeed']),
-                  _buildSummaryItem("대화 처음부터 보기", data['showContentFromStart']),
-                  _buildSummaryItem("한국어 번역", data['showKoreanTranslation']),
-                  _buildSummaryItem("한국어 발음", data['showKoreanPronunciation']),
+                  _buildSummaryItem(
+                    "성별/생년월일",
+                    "${widget.data['gender']} / ${widget.data['birthDate']}",
+                  ),
+                  _buildSummaryItem("일본어 수준", widget.data['level']),
+                  _buildSummaryItem("공부 기간", widget.data['duration']),
+                  _buildSummaryItem(
+                    "학습 목적",
+                    purposesText.isEmpty ? "선택 안 함" : purposesText,
+                  ),
+                  _buildSummaryItem(
+                    "관심사",
+                    hobbiesText.isEmpty ? "선택 안 함" : hobbiesText,
+                  ),
+                  _buildSummaryItem("AI 말하기 속도", widget.data['aiSpeed']),
+                  _buildSummaryItem("대화 처음부터 보기", widget.data['showContentFromStart']),
+                  _buildSummaryItem("한국어 번역", widget.data['showKoreanTranslation']),
+                  _buildSummaryItem("한국어 발음", widget.data['showKoreanPronunciation']),
                 ],
               ),
             ),
           ),
           StepNavigationButtons(
-            pageController: pageController,
-            nextText: "시작하기",
-            onNext: () {
-              UserDataService().updateAll(data);
-              // 회원가입 페이지로 이동
-              Navigator.of(context).pushNamed('/signup');
-            },
+            pageController: widget.pageController,
+            nextText: _isSaving ? "저장 중..." : "시작하기",
+            isNextEnabled: !_isSaving,
+            onNext: _completeSetup,
           ),
         ],
       ),

@@ -24,6 +24,7 @@ class _SetupPageState extends State<SetupPage> {
   //step widget 단계 표시
   final PageController _controller = PageController();
   double _progress = 1 / 6;
+  int _currentPage = 0;
 
   // 전체 설정을 저장할 데이터 맵
   final Map<String, dynamic> setupData = {
@@ -53,22 +54,20 @@ class _SetupPageState extends State<SetupPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: GestureDetector(
-          onTap: () {
-            if (_controller.hasClients && _controller.page! > 0) {
-              _controller.previousPage(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.ease,
-              );
-            } else {
-              Navigator.of(context).pushReplacementNamed('/onboarding');
-            }
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: SvgPicture.asset(AppIcons.previousNoBg),
-          ),
-        ),
+        leading: _currentPage > 0
+            ? GestureDetector(
+                onTap: () {
+                  _controller.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: SvgPicture.asset(AppIcons.previousNoBg),
+                ),
+              )
+            : null,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(4),
           child: LinearProgressIndicator( //progress bar
@@ -85,7 +84,10 @@ class _SetupPageState extends State<SetupPage> {
           //손가락으로 못넘기고 버튼 눌러야만 단계별로 넘어가도록 설정 (필수입력항목 체크)
           physics: const NeverScrollableScrollPhysics(),
           onPageChanged: (index) {
-            setState(() => _progress = index >= 6 ? 1.0 : (index + 1) / 6);
+            setState(() {
+              _currentPage = index;
+              _progress = index >= 6 ? 1.0 : (index + 1) / 6;
+            });
           },
           children: [
             Step1Widget( //onCompleted() 안에 내용 다 선택하면 updateData

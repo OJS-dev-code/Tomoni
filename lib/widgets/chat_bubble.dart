@@ -12,7 +12,10 @@ class ChatBubble extends StatefulWidget {
   // 사용자 설정에 따른 초기값
   final bool showJapaneseInitially;
   final bool showTranslationInitially;
+  final bool showPronunciationInitially;
   final String aiSpeedSetting;
+  final VoidCallback? onReplay;
+  final VoidCallback? onSpeedTap;
 
   const ChatBubble({
     super.key,
@@ -23,7 +26,10 @@ class ChatBubble extends StatefulWidget {
     this.isRecommended = false,
     required this.showJapaneseInitially,
     required this.showTranslationInitially,
+    required this.showPronunciationInitially,
     required this.aiSpeedSetting,
+    this.onReplay,
+    this.onSpeedTap,
   });
 
   @override
@@ -38,9 +44,16 @@ class _ChatBubbleState extends State<ChatBubble> {
   @override
   void initState() {
     super.initState();
-    isJapaneseRevealed = widget.showJapaneseInitially;
+    isJapaneseRevealed = widget.showJapaneseInitially || !widget.isAI;
     isTranslationVisible = widget.showTranslationInitially;
+    isPronunciationVisible = widget.showPronunciationInitially;
   }
+
+  bool get _hasPronunciation =>
+      widget.pronunciation != null && widget.pronunciation!.trim().isNotEmpty;
+
+  bool get _hasTranslation =>
+      widget.translation != null && widget.translation!.trim().isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -145,33 +158,39 @@ class _ChatBubbleState extends State<ChatBubble> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // 발음 버튼
-                              _buildGroupButton(
-                                AppIcons.pronunciation, 
-                                () => setState(() => isPronunciationVisible = !isPronunciationVisible)
-                              ),
-                              
-                              // 번역 버튼 (설정이 '아니오'일 때만)
-                              if (!widget.showTranslationInitially) ...[
-                                const VerticalDivider(width: 1, color: Colors.black12),
+                              if (!widget.showPronunciationInitially && _hasPronunciation) ...[
                                 _buildGroupButton(
-                                  AppIcons.translate, 
-                                  () => setState(() => isTranslationVisible = !isTranslationVisible)
+                                  AppIcons.pronunciation,
+                                  () => setState(
+                                    () => isPronunciationVisible = !isPronunciationVisible,
+                                  ),
                                 ),
+                                const VerticalDivider(width: 1, color: Colors.black12),
                               ],
-                              
-                              const VerticalDivider(width: 1, color: Colors.black12),
-                              
-                              // 속도 버튼
-                              _buildGroupButton(
-                                widget.aiSpeedSetting == "천천히" ? AppIcons.tellFaster : AppIcons.tellSlower, 
-                                () {}
-                              ),
-                              
-                              const VerticalDivider(width: 1, color: Colors.black12),
-                              
+
+                              if (!widget.showTranslationInitially && _hasTranslation) ...[
+                                _buildGroupButton(
+                                  AppIcons.translate,
+                                  () => setState(
+                                    () => isTranslationVisible = !isTranslationVisible,
+                                  ),
+                                ),
+                                const VerticalDivider(width: 1, color: Colors.black12),
+                              ],
+
+                              if (widget.isAI && widget.onSpeedTap != null) ...[
+                                _buildGroupButton(
+                                  widget.aiSpeedSetting.contains("천천히")
+                                      ? AppIcons.tellFaster
+                                      : AppIcons.tellSlower,
+                                  widget.onSpeedTap!,
+                                ),
+                                const VerticalDivider(width: 1, color: Colors.black12),
+                              ],
+
                               // 다시듣기 버튼
-                              _buildGroupButton(AppIcons.replay, () {}),
+                              if (widget.onReplay != null)
+                                _buildGroupButton(AppIcons.replay, widget.onReplay!),
                             ],
                           ),
                         ),

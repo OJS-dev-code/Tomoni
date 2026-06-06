@@ -106,8 +106,11 @@ class _Step4WidgetState extends State<Step4Widget> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          if (isSelected) selectedPurposes.remove(label);
-          else selectedPurposes.add(label);
+          if (isSelected) {
+            selectedPurposes.remove(label);
+          } else {
+            selectedPurposes.add(label);
+          }
         });
       },
       child: Container(
@@ -132,8 +135,11 @@ class _Step4WidgetState extends State<Step4Widget> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          if (isSelected) selectedPurposes.remove(label);
-          else selectedPurposes.add(label);
+          if (isSelected) {
+            selectedPurposes.remove(label);
+          } else {
+            selectedPurposes.add(label);
+          }
         });
       },
       child: Container(

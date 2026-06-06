@@ -3,6 +3,7 @@ import '../../constants/app_constants.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../widgets/home_action_button.dart';
 import '../../widgets/home_calendar.dart';
+import '../../widgets/home_mistake_patterns.dart';
 import '../scenario/scenario_topic_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -48,9 +49,10 @@ class HomePage extends StatelessWidget {
                 onTap: () => _handleStart(context),
               ),
               const SizedBox(height: 30),
-              // 학습 캘린더 위젯
               const HomeCalendar(),
-              const SizedBox(height: 80), // 하단 바 높이에 맞춰 여백 조정
+              const SizedBox(height: 20),
+              const HomeMistakePatterns(),
+              const SizedBox(height: 80),
             ],
           ),
         ),

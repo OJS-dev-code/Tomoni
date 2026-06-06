@@ -102,8 +102,11 @@ class _Step5WidgetState extends State<Step5Widget> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          if (isSelected) selectedHobbies.remove(label);
-          else selectedHobbies.add(label);
+          if (isSelected) {
+            selectedHobbies.remove(label);
+          } else {
+            selectedHobbies.add(label);
+          }
         });
       },
       child: Container(
@@ -128,8 +131,11 @@ class _Step5WidgetState extends State<Step5Widget> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          if (isSelected) selectedHobbies.remove(label);
-          else selectedHobbies.add(label);
+          if (isSelected) {
+            selectedHobbies.remove(label);
+          } else {
+            selectedHobbies.add(label);
+          }
         });
       },
       child: Container(
