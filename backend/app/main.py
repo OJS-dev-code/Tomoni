@@ -5,7 +5,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.routers import audio, health, mistakes, notes, scenarios, users
+from app.routers import audio, health, notes, scenarios, users
+# Phase 5 (보류): /api/v1/mistakes
+# from app.routers import mistakes
 from app.services.firebase import init_firebase
 
 logging.basicConfig(level=logging.INFO)
@@ -47,7 +49,8 @@ def create_app() -> FastAPI:
     app.include_router(scenarios.router, prefix="/api/v1")
     app.include_router(audio.router, prefix="/api/v1")
     app.include_router(notes.router, prefix="/api/v1")
-    app.include_router(mistakes.router, prefix="/api/v1")
+    # Phase 5 (보류): 오답 패턴 API
+    # app.include_router(mistakes.router, prefix="/api/v1")
 
     return app
 

@@ -5,7 +5,9 @@ from typing import Any
 from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
 from app.models.scenario import ChatMessage, SendMessageResponse, SessionCreateResponse
-from app.services import feedback_service, gemini_service, mistake_service, user_service
+from app.services import feedback_service, gemini_service, user_service
+# Phase 5 (보류): mistake_service — 약점 기반 주제 추천
+# from app.services import mistake_service
 from app.services.goal_completion_service import normalize_goal_completion
 from app.services.firebase import get_firestore
 from app.services.hint_match import texts_match_hint
@@ -76,18 +78,18 @@ def _assert_owner(session: dict[str, Any], uid: str) -> None:
 
 def get_recommended_topics(uid: str) -> list[str]:
     profile = _profile_as_dict(uid)
-    weak_summary = mistake_service.get_weak_area_summary(uid)
-    if weak_summary:
-        profile = {**profile, "weakAreas": weak_summary}
-
-    mistake_topics = mistake_service.generate_practice_recommendations(uid, limit=2)
+    # Phase 5 (보류): 약점 기반 주제 우선 노출
+    # weak_summary = mistake_service.get_weak_area_summary(uid)
+    # if weak_summary:
+    #     profile = {**profile, "weakAreas": weak_summary}
+    # mistake_topics = mistake_service.generate_practice_recommendations(uid, limit=2)
     general_topics = gemini_service.generate_topics(profile)
-
-    merged: list[str] = []
-    for topic in mistake_topics + general_topics:
-        if topic not in merged:
-            merged.append(topic)
-    return merged[:3]
+    # merged: list[str] = []
+    # for topic in mistake_topics + general_topics:
+    #     if topic not in merged:
+    #         merged.append(topic)
+    # return merged[:3]
+    return general_topics[:3]
 
 
 def get_recommended_goals(uid: str, topic: str) -> list[str]:

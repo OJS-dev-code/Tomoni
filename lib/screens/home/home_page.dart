@@ -1,33 +1,27 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_constants.dart';
-import 'package:permission_handler/permission_handler.dart';
+import '../../services/microphone_permission_service.dart';
 import '../../widgets/home_action_button.dart';
 import '../../widgets/home_calendar.dart';
-import '../../widgets/home_mistake_patterns.dart';
+// Phase 5 (보류): 홈 「자주 하는 실수」 — 배포 최소화
+// import '../../widgets/home_mistake_patterns.dart';
 import '../scenario/scenario_topic_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   Future<void> _handleStart(BuildContext context) async {
-    // 1. 마이크 권한 요청
-    var status = await Permission.microphone.request();
-    
-    if (status.isGranted) {
-      // 2. 권한 허용 시 페이지 이동
+    final granted = await MicrophonePermissionService.request();
+
+    if (granted) {
       if (context.mounted) {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const ScenarioTopicPage()),
         );
       }
-    } else {
-      // 3. 거부 시 안내 (선택사항)
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("상황극을 위해 마이크 권한이 필요합니다.")),
-        );
-      }
+    } else if (context.mounted) {
+      MicrophonePermissionService.showDeniedMessage(context);
     }
   }
 
@@ -51,7 +45,8 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 30),
               const HomeCalendar(),
               const SizedBox(height: 20),
-              const HomeMistakePatterns(),
+              // Phase 5 (보류): 홈 「자주 하는 실수」 카드
+              // const HomeMistakePatterns(),
               const SizedBox(height: 80),
             ],
           ),

@@ -10,6 +10,7 @@ import 'package:record/record.dart';
 import '../config/api_config.dart';
 import 'api_service.dart';
 import 'auth_service.dart';
+import 'microphone_permission_service.dart';
 
 class AudioService {
   AudioService._();
@@ -47,10 +48,15 @@ class AudioService {
   Future<void> startRecording() async {
     if (_isRecording) return;
 
+    final granted = await MicrophonePermissionService.request();
+    if (!granted) {
+      throw ApiException(MicrophonePermissionService.deniedMessage);
+    }
+
     if (!kIsWeb) {
       final hasPermission = await _recorder.hasPermission();
       if (!hasPermission) {
-        throw ApiException('마이크 권한이 필요합니다.');
+        throw ApiException(MicrophonePermissionService.deniedMessage);
       }
     }
 

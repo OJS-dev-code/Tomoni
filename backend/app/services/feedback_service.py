@@ -12,7 +12,8 @@ from app.services.korean_text_service import (
     sanitize_pronunciation,
     sanitize_translation,
 )
-from app.services import mistake_service
+# Phase 5 (보류): 오답 패턴 Firestore 누적
+# from app.services import mistake_service
 from app.services.llm_service import try_generate_json
 
 logger = logging.getLogger(__name__)
@@ -385,16 +386,17 @@ def create_note_for_session(uid: str, session_id: str) -> dict[str, Any]:
     db.collection(NOTES_COLLECTION).document(note_id).set(note_payload)
     session_ref.update({"feedbackNoteId": note_id, "updatedAt": SERVER_TIMESTAMP})
 
-    try:
-        mistake_service.record_from_feedback_note(
-            uid=uid,
-            session_id=session_id,
-            topic=str(session.get("topic", "")),
-            items=generated["items"],
-            history=history,
-        )
-    except Exception as exc:
-        logger.warning("Failed to record mistake patterns: %s", exc)
+    # Phase 5 (보류): 피드백 노트 → 오답 패턴 기록
+    # try:
+    #     mistake_service.record_from_feedback_note(
+    #         uid=uid,
+    #         session_id=session_id,
+    #         topic=str(session.get("topic", "")),
+    #         items=generated["items"],
+    #         history=history,
+    #     )
+    # except Exception as exc:
+    #     logger.warning("Failed to record mistake patterns: %s", exc)
 
     saved = db.collection(NOTES_COLLECTION).document(note_id).get()
     return _to_note_response(note_id, saved.to_dict() or note_payload)
