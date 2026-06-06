@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
 import '../config/api_config.dart';
+import 'api_loading_service.dart';
 import 'api_service.dart';
 import 'auth_service.dart';
 import 'microphone_permission_service.dart';
@@ -106,26 +107,27 @@ class AudioService {
         http.MultipartFile.fromBytes('file', bytes, filename: filename),
       );
 
-    http.StreamedResponse streamed;
+    ApiLoadingService.begin();
     try {
-      streamed = await request.send();
+      final streamed = await request.send();
+      final response = await http.Response.fromStream(streamed);
+      if (response.statusCode != 200) {
+        throw ApiException(_errorMessage(response));
+      }
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final text = (body['text'] as String? ?? '').trim();
+      if (text.isEmpty) {
+        throw ApiException('음성을 인식하지 못했습니다. 다시 말해주세요.');
+      }
+      return text;
     } on http.ClientException {
       throw ApiException(
         '서버에 연결할 수 없습니다. (현재 주소: ${ApiConfig.baseUrl})',
       );
+    } finally {
+      ApiLoadingService.end();
     }
-
-    final response = await http.Response.fromStream(streamed);
-    if (response.statusCode != 200) {
-      throw ApiException(_errorMessage(response));
-    }
-
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
-    final text = (body['text'] as String? ?? '').trim();
-    if (text.isEmpty) {
-      throw ApiException('음성을 인식하지 못했습니다. 다시 말해주세요.');
-    }
-    return text;
   }
 
   Future<void> playTts(
@@ -144,14 +146,24 @@ class AudioService {
       payload['voice'] = voice;
     }
 
-    final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/v1/audio/tts'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(payload),
-    );
+    ApiLoadingService.begin();
+    late final http.Response response;
+    try {
+      response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/v1/audio/tts'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(payload),
+      );
+    } on http.ClientException {
+      throw ApiException(
+        '서버에 연결할 수 없습니다. (현재 주소: ${ApiConfig.baseUrl})',
+      );
+    } finally {
+      ApiLoadingService.end();
+    }
 
     if (response.statusCode != 200) {
       throw ApiException(_errorMessage(response));

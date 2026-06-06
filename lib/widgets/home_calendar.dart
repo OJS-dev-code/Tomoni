@@ -89,7 +89,7 @@ class _HomeCalendarState extends State<HomeCalendar> {
             focusedDay: _focusedDay,
             onMonthChanged: _updateMonth,
           ),
-          const SizedBox(height: 25),
+          const SizedBox(height: 16),
           _CalendarGrid(
             focusedDay: _focusedDay,
             isHoliday: _isHoliday,
@@ -161,44 +161,33 @@ class _CalendarHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     const headerStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87);
 
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: const [
-            Text("학습 캘린더", style: headerStyle),
-          ],
+        GestureDetector(
+          onTap: () => _showPicker(context),
+          child: Row(
+            children: [
+              Text("${focusedDay.year}년 ${focusedDay.month}월", style: headerStyle),
+              const SizedBox(width: 4),
+              const Icon(Icons.arrow_drop_down, color: Colors.black87),
+            ],
+          ),
         ),
-        const SizedBox(height: 15),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            GestureDetector(
-              onTap: () => _showPicker(context),
-              child: Row(
-                children: [
-                  Text("${focusedDay.year}년 ${focusedDay.month}월", style: headerStyle),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.arrow_drop_down, color: Colors.black87),
-                ],
-              ),
+            IconButton(
+              onPressed: () => onMonthChanged(DateTime(focusedDay.year, focusedDay.month - 1)),
+              icon: const Icon(Icons.chevron_left, color: AppColors.darkGrey),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
             ),
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () => onMonthChanged(DateTime(focusedDay.year, focusedDay.month - 1)),
-                  icon: const Icon(Icons.chevron_left, color: AppColors.darkGrey),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-                const SizedBox(width: 15),
-                IconButton(
-                  onPressed: () => onMonthChanged(DateTime(focusedDay.year, focusedDay.month + 1)),
-                  icon: const Icon(Icons.chevron_right, color: AppColors.darkGrey),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ],
+            const SizedBox(width: 15),
+            IconButton(
+              onPressed: () => onMonthChanged(DateTime(focusedDay.year, focusedDay.month + 1)),
+              icon: const Icon(Icons.chevron_right, color: AppColors.darkGrey),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
             ),
           ],
         ),
@@ -228,32 +217,31 @@ class _CalendarGrid extends StatelessWidget {
     return Column(
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: weekDays.map((day) {
             Color textColor = AppColors.darkGrey;
             if (day == "日") textColor = AppColors.pinkyRed;
             if (day == "土") textColor = AppColors.primary;
-            return SizedBox(
-              width: 40,
+            return Expanded(
               child: Text(
                 day,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 18,
                   color: textColor,
                 ),
               ),
             );
           }).toList(),
         ),
-        const SizedBox(height: 10), // 간격 조정
+        const SizedBox(height: 6),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: 42,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 7,
-            mainAxisSpacing: 0,
+            mainAxisSpacing: 2,
+            mainAxisExtent: 42,
           ),
           itemBuilder: (context, index) {
             final dayNum = index - firstWeekday + 1;
@@ -280,8 +268,8 @@ class _CalendarGrid extends StatelessWidget {
 
             return Center(
               child: Container(
-                width: 32,
-                height: 32,
+                width: 30,
+                height: 30,
                 decoration: BoxDecoration(
                   color: isToday ? Colors.transparent : (noteColor ?? Colors.transparent),
                   shape: BoxShape.circle,

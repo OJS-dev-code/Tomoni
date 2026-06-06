@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../config/api_config.dart';
+import 'api_loading_service.dart';
 import 'api_service.dart';
 import 'auth_service.dart';
 
@@ -91,12 +92,15 @@ class ScenarioService {
       };
 
   Future<http.Response> _send(Future<http.Response> Function() request) async {
+    ApiLoadingService.begin();
     try {
       return await request();
     } on http.ClientException {
       throw ApiException(
         '서버에 연결할 수 없습니다. (현재 주소: ${ApiConfig.baseUrl})',
       );
+    } finally {
+      ApiLoadingService.end();
     }
   }
 

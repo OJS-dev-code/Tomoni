@@ -36,17 +36,13 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 50), // 버튼 위 공간 추가
-              // 상단 상황극 시작 버튼
+              const SizedBox(height: 24),
+              const HomeCalendar(),
+              const SizedBox(height: 24),
               HomeActionButton(
                 text: "AI와 상황극 시작하기",
                 onTap: () => _handleStart(context),
               ),
-              const SizedBox(height: 30),
-              const HomeCalendar(),
-              const SizedBox(height: 20),
-              // Phase 5 (보류): 홈 「자주 하는 실수」 카드
-              // const HomeMistakePatterns(),
               const SizedBox(height: 80),
             ],
           ),

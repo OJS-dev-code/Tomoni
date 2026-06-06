@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../config/api_config.dart';
+import 'api_loading_service.dart';
 import 'user_data_service.dart';
 
 class ApiException implements Exception {
@@ -122,6 +123,7 @@ class ApiService {
   }
 
   Future<http.Response> _send(Future<http.Response> Function() request) async {
+    ApiLoadingService.begin();
     try {
       return await request();
     } on http.ClientException {
@@ -129,6 +131,8 @@ class ApiService {
         '서버에 연결할 수 없습니다. 백엔드가 실행 중인지 확인해주세요. '
         '(현재 주소: ${ApiConfig.baseUrl})',
       );
+    } finally {
+      ApiLoadingService.end();
     }
   }
 
