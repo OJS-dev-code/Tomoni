@@ -5,7 +5,7 @@ import '../constants/app_constants.dart';
 class AppTheme {
   static final ThemeData lightTheme = ThemeData(
     primaryColor: AppColors.primary, //메인컬러
-    scaffoldBackgroundColor: Colors.white, //모든화면 기본 배경색
+    scaffoldBackgroundColor: AppColors.background, //모든화면 기본 배경색
     //상단 앱 바의 스타일 (그림자 없음, 흰색)
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.white,

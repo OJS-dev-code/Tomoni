@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/feedback_note.dart';
+import '../../constants/app_constants.dart';
 
 class NoteItem extends StatelessWidget {
   final FeedbackNote note;
@@ -19,9 +20,13 @@ class NoteItem extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 12), // 박스 사이 간격
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.zero, // 라운드 제거
+          borderRadius: BorderRadius.circular(20), // 라운드 제거
+          border: Border.all(
+            color: AppColors.border,
+            width: 1,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../../constants/app_constants.dart';
 import '../../services/microphone_permission_service.dart';
 import '../../widgets/home_action_button.dart';
 import '../../widgets/home_calendar.dart';
-// Phase 5 (보류): 홈 「자주 하는 실수」 — 배포 최소화
-// import '../../widgets/home_mistake_patterns.dart';
 import '../scenario/scenario_topic_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -28,24 +27,48 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pastelLightgreen,
+      backgroundColor: AppColors.background,
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16.0), // 양옆 공백 축소
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 24),
-              const HomeCalendar(),
-              const SizedBox(height: 24),
-              HomeActionButton(
-                text: "AI와 상황극 시작하기",
-                onTap: () => _handleStart(context),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  bottom: BorderSide(color: Color(0xFFE5E5E5)),
+                ),
               ),
-              const SizedBox(height: 80),
-            ],
-          ),
+              child: const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Tomoni',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.deepYellow,
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                child: Column(
+                  children: [
+                    const HomeCalendar(),
+                    const SizedBox(height: 28),
+                    HomeActionButton(
+                      text: 'AI 상황극 시작하기',
+                      onTap: () => _handleStart(context),
+                    ),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

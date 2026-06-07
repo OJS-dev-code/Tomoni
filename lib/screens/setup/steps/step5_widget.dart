@@ -102,19 +102,16 @@ class _Step5WidgetState extends State<Step5Widget> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          if (isSelected) {
-            selectedHobbies.remove(label);
-          } else {
-            selectedHobbies.add(label);
-          }
+          if (isSelected) selectedHobbies.remove(label);
+          else selectedHobbies.add(label);
         });
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
+          color: isSelected ? AppColors.deepYellow : Colors.white,
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: isSelected ? AppColors.primary : AppColors.lightGrey1),
+          border: Border.all(color: isSelected ? AppColors.deepYellow : AppColors.lightGrey1),
         ),
         child: Text(
           label,
@@ -131,19 +128,16 @@ class _Step5WidgetState extends State<Step5Widget> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          if (isSelected) {
-            selectedHobbies.remove(label);
-          } else {
-            selectedHobbies.add(label);
-          }
+          if (isSelected) selectedHobbies.remove(label);
+          else selectedHobbies.add(label);
         });
       },
       child: Container(
         padding: const EdgeInsets.only(left: 16, top: 10, bottom: 10, right: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
+          color: isSelected ? AppColors.deepYellow : Colors.white,
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: isSelected ? AppColors.primary : AppColors.lightGrey1),
+          border: Border.all(color: isSelected ? AppColors.deepYellow : AppColors.lightGrey1),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
 // 앱 전체 사용하는 색상 색상명으로 정의
 class AppColors {
-  static const Color primary = Color(0xFF3396FF);
+
+  static const Color primary = Color(0xFFffd966);
+  static const Color deepYellow = Color(0xFF807019);
+  static const Color deepYellow3 = Color(0xFF8A6A00);
+  static const Color deepYellow2 = Color(0xFF735c00);
+
+  static const Color background = Color(0xFFfbf9f8);
+  static const Color navy = Color(0xFF4F6B95);
+  static const Color beigeGray = Color(0xFFdbdad9);
+  static const Color border = Color(0xFFdbdad9);
+  static const Color blue = Color(0xFFa3daff);
+  static const Color primary2 = Color(0xFF3396FF);
   static const Color sapphireBlue= Color(0xFF0F52BA);
   static const Color egyptianBlue = Color(0xFF1034A6);
   static const Color pastelLightgreen= Color(0xFFEBF4C6);

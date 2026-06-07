@@ -22,6 +22,7 @@ class DirectInputField extends StatelessWidget {
         Expanded(
           child: TextField(
             controller: controller,
+            cursorColor: AppColors.darkGrey,
             decoration: InputDecoration(
               hintText: hintText,
               hintStyle: const TextStyle(color: AppColors.lightGrey1),
@@ -34,6 +35,13 @@ class DirectInputField extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: AppColors.lightGrey1),
               ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 2,
+                ),
+              ),
             ),
           ),
         ),
@@ -41,7 +49,7 @@ class DirectInputField extends StatelessWidget {
         ElevatedButton(
           onPressed: onAdd,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
+            backgroundColor: AppColors.navy,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),

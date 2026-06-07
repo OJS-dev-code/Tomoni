@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../../constants/app_constants.dart';
 import '../../../widgets/step_navigation_buttons.dart';
@@ -20,24 +19,12 @@ class Step1Widget extends StatefulWidget {
 
 class _Step1WidgetState extends State<Step1Widget> {
   String? selectedGender;
-  int selectedYear = 2000;
-  int selectedMonth = 1;
-  int selectedDay = 1;
+  DateTime? selectedBirthDate;
 
-  final List<int> years = List.generate(100, (index) => DateTime.now().year - index);
-  final List<int> months = List.generate(12, (index) => index + 1);
-
-  List<int> get daysInMonth {
-    int lastDay = DateTime(selectedYear, selectedMonth + 1, 0).day;
-    return List.generate(lastDay, (index) => index + 1);
-  }
 
   @override
   Widget build(BuildContext context) {
-    List<int> currentDays = daysInMonth;
-    if (selectedDay > currentDays.length) {
-      selectedDay = currentDays.length;
-    }
+
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30.0),
@@ -49,47 +36,88 @@ class _Step1WidgetState extends State<Step1Widget> {
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: _buildGenderButton("여성", "female")),
-              const SizedBox(width: 12),
-              Expanded(child: _buildGenderButton("남성", "male")),
+              Expanded(
+                child: _buildGenderCard(
+                  "여성",
+                  "female",
+                  Icons.female,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildGenderCard(
+                  "남성",
+                  "male",
+                  Icons.male,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 40),
           const Text("생년월일", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
-          SizedBox(
-            height: 150,
-            child: Row(
-              children: [
-                _buildPicker(
-                  years, 
-                  (val) => setState(() => selectedYear = years[val]), 
-                  years.indexOf(selectedYear), 
-                  "년"
+
+          GestureDetector(
+            onTap: () async {
+              final pickedDate = await showDatePicker(
+                context: context,
+                initialDate: selectedBirthDate ?? DateTime(2000),
+                firstDate: DateTime(1920),
+                lastDate: DateTime.now(),
+              );
+
+              if (pickedDate != null) {
+                setState(() {
+                  selectedBirthDate = pickedDate;
+                });
+              }
+            },
+            child: Container(
+              height: 60,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.border,
+                  width: 1,
                 ),
-                _buildPicker(
-                  months, 
-                  (val) => setState(() => selectedMonth = months[val]), 
-                  months.indexOf(selectedMonth), 
-                  "월"
-                ),
-                _buildPicker(
-                  currentDays, 
-                  (val) => setState(() => selectedDay = currentDays[val]), 
-                  currentDays.indexOf(selectedDay), 
-                  "일",
-                  key: ValueKey("$selectedYear-$selectedMonth")
-                ),
-              ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      selectedBirthDate == null
+                          ? "생년월일을 선택해주세요"
+                          : "${selectedBirthDate!.year}.${selectedBirthDate!.month.toString().padLeft(2, '0')}.${selectedBirthDate!.day.toString().padLeft(2, '0')}",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: selectedBirthDate == null
+                            ? Colors.grey
+                            : Colors.black,
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.calendar_month),
+                ],
+              ),
             ),
           ),
+
           const Spacer(),
           StepNavigationButtons(
             pageController: widget.pageController,
             showPrevious: false,
-            isNextEnabled: selectedGender != null,
+            isNextEnabled:
+            selectedGender != null&&
+            selectedBirthDate != null,
             onNext: () {
-              widget.onCompleted(selectedGender!, selectedYear, selectedMonth, selectedDay);
+              widget.onCompleted(
+                  selectedGender!,
+                  selectedBirthDate!.year,
+                  selectedBirthDate!.month,
+                  selectedBirthDate!.day,
+              );
               widget.pageController.nextPage(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.ease,
@@ -101,49 +129,61 @@ class _Step1WidgetState extends State<Step1Widget> {
     );
   }
 
-  Widget _buildGenderButton(String label, String value) {
+  Widget _buildGenderCard(
+      String label,
+      String value,
+      IconData icon,
+      ) {
     bool isSelected = selectedGender == value;
+
     return GestureDetector(
-      onTap: () => setState(() => selectedGender = value),
+      onTap: () {
+        setState(() {
+          selectedGender = value;
+        });
+      },
       child: Container(
-        height: 50,
+        height: 160,
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.lightGrey1,
+            color: isSelected
+                ? AppColors.deepYellow
+                : AppColors.border,
+            width: isSelected? 2 : 1,
           ),
         ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black54,
-            fontWeight: FontWeight.bold,
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 28,
+              backgroundColor: value == "female"
+                  ? const Color(0xFFEAF3FB)
+                  : const Color(0xFFFFF4D6),
+              child: Icon(
+                icon,
+                color: value == "female"
+                    ? const Color(0xFF3A6D9A)
+                    : const Color(0xFF8A6A00),
+                size: 32,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildPicker(List<int> items, ValueChanged<int> onSelectedItemChanged, int initialIndex, String unit, {Key? key}) {
-    return Expanded(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          CupertinoPicker(
-            key: key,
-            itemExtent: 40,
-            scrollController: FixedExtentScrollController(initialItem: initialIndex),
-            onSelectedItemChanged: onSelectedItemChanged,
-            children: items.map((item) => Center(child: Text("$item"))).toList(),
-          ),
-          Positioned(
-            right: 10,
-            child: Text(unit, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-  }
+
 }

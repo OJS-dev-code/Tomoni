@@ -18,12 +18,23 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
 
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
   Future<void> _handleLogin() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    if (email.isEmpty || password.isEmpty) {
-      _showMessage('이메일과 비밀번호를 입력해주세요.');
+    if (email.isEmpty) {
+      _showMessage('이메일을 입력해주세요.');
+      return;
+    }
+    if (password.isEmpty) {
+      _showMessage('비밀번호를 입력해주세요.');
       return;
     }
 
@@ -56,20 +67,11 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _showMessage(String message) {
-    if (!mounted) {
-      return;
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(backgroundColor: Colors.white, elevation: 0),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(backgroundColor: AppColors.background, elevation: 0),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 30.0),
         child: Column(
@@ -101,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: const Text(
                     '회원가입',
                     style: TextStyle(
-                      color: AppColors.primary,
+                      color: AppColors.deepYellow,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -131,9 +133,34 @@ class _LoginPageState extends State<LoginPage> {
           controller: controller,
           obscureText: isPassword,
           enabled: !_isLoading,
+          cursorColor: AppColors.darkGrey,
           decoration: InputDecoration(
             hintText: "$label 입력",
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            filled: true,
+            fillColor: Colors.white,
+            hintStyle: const TextStyle(
+              color: AppColors.lightGrey2,
+              fontSize: 14,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.lightGrey1),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.lightGrey1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: AppColors.primary,
+                width: 2,
+              ),
+            ),
           ),
         ),
       ],

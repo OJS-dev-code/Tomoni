@@ -21,6 +21,8 @@ class _ScenarioGoalPageState extends State<ScenarioGoalPage> {
   final TextEditingController _controller = TextEditingController();
   bool _isLoading = true;
 
+  static const _selectedColor = Color(0xFF807019);
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +48,48 @@ class _ScenarioGoalPageState extends State<ScenarioGoalPage> {
     }
   }
 
+  Widget _buildGoalCard(String goal) {
+    final isSelected = selectedGoals.contains(goal);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          setState(() {
+            if (isSelected) {
+              selectedGoals.remove(goal);
+            } else {
+              selectedGoals.add(goal);
+            }
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? _selectedColor : Colors.grey.shade300,
+              width: isSelected ? 2 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(goal, style: const TextStyle(fontSize: 15)),
+              ),
+              Icon(
+                isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+                color: isSelected ? _selectedColor : Colors.grey,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScenarioPageLayout(
@@ -63,102 +107,111 @@ class _ScenarioGoalPageState extends State<ScenarioGoalPage> {
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("대화 목표를 하나 이상 선택해주세요.")),
+            const SnackBar(
+              content: Text("대화 목표를 하나 이상 선택해주세요."),
+            ),
           );
         }
       },
       child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Padding(
+              padding: EdgeInsets.symmetric(vertical: 48),
+              child: Center(child: CircularProgressIndicator()),
+            )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const ScenarioSectionTitle(title: "AI의 추천 목표"),
+                Text(
+                  widget.topic,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: _selectedColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "대화 목표 선택",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "이번 대화에서 달성하고 싶은\n목표를 선택해보세요.",
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  "🎯 AI의 추천 목표",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
                 if (recommendations.isEmpty)
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
-                    color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
                     child: const Text(
                       "이 주제에 맞는 추천 목표가 없습니다. 아래에서 직접 입력해주세요.",
-                      style: TextStyle(fontSize: 15, color: Colors.black54),
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
                     ),
                   )
                 else
-                  ...recommendations.asMap().entries.map((entry) {
-                  final goal = entry.value;
-                  final index = entry.key + 1;
-                  final isSelected = selectedGoals.contains(goal);
-                  return ScenarioItemBox(
-                    onTap: () => setState(() {
-                      if (isSelected) {
-                        selectedGoals.remove(goal);
-                      } else {
-                        selectedGoals.add(goal);
-                      }
-                    }),
-                    onDelete: () {},
-                    child: Text("($index) $goal", style: const TextStyle(fontSize: 18)),
-                  );
-                }),
-                const SizedBox(height: 20),
-                const ScenarioSectionTitle(title: "직접 목표 입력하기"),
-                ScenarioInputRow(
-                  controller: _controller,
-                  onAdd: () {
-                    if (_controller.text.isNotEmpty) {
-                      setState(() {
-                        customGoals.add(_controller.text);
-                        selectedGoals.add(_controller.text);
-                        _controller.clear();
-                      });
-                    }
-                  },
+                  ...recommendations.map(_buildGoalCard),
+                const SizedBox(height: 24),
+                const Text(
+                  "✏ 직접 목표 입력하기",
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
-                ...customGoals.asMap().entries.map((entry) {
-                  final goal = entry.value;
-                  final index = recommendations.length + entry.key + 1;
-                  final isSelected = selectedGoals.contains(goal);
-                  return ScenarioItemBox(
-                    onTap: () => setState(() {
-                      if (isSelected) {
-                        selectedGoals.remove(goal);
-                      } else {
-                        selectedGoals.add(goal);
-                      }
-                    }),
-                    onDelete: () => setState(() {
-                      customGoals.remove(goal);
-                      selectedGoals.remove(goal);
-                    }),
-                    child: Text("($index) $goal", style: const TextStyle(fontSize: 18)),
-                  );
-                }),
-                const SizedBox(height: 30),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  color: Colors.white,
-                  width: double.infinity,
-                  child: Row(
-                    children: [
-                      const Text("선정한 목표 : ", style: TextStyle(fontWeight: FontWeight.bold)),
-                      Expanded(
-                        child: Text(
-                          selectedGoals.map((g) {
-                            int idx = recommendations.indexOf(g);
-                            if (idx != -1) return "(${idx + 1})";
-                            int cIdx = customGoals.indexOf(g);
-                            if (cIdx != -1) {
-                              return "(${recommendations.length + cIdx + 1})";
-                            }
-                            return "";
-                          }).join(" "),
-                          style: const TextStyle(fontSize: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        decoration: InputDecoration(
+                          hintText: "달성하고 싶은 목표를 입력하세요",
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 8),
+                    SizedBox(
+                      height: 54,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          final text = _controller.text.trim();
+                          if (text.isEmpty) return;
+                          setState(() {
+                            if (!customGoals.contains(text)) {
+                              customGoals.add(text);
+                            }
+                            selectedGoals.add(text);
+                            _controller.clear();
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4F6B95),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text("추가"),
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 16),
+                ...customGoals.map(_buildGoalCard),
               ],
             ),
     );

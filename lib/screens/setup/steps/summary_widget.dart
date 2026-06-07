@@ -117,7 +117,7 @@ class _SummaryWidgetState extends State<SummaryWidget> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.lightGrey1),
       ),
       child: Column(

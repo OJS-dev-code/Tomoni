@@ -47,10 +47,10 @@ class _Step3WidgetState extends State<Step3Widget> {
                     height: 60,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary.withOpacity(0.05) : Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      color: isSelected ? AppColors.deepYellow.withOpacity(0.05) : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: isSelected ? AppColors.primary : AppColors.lightGrey1,
+                        color: isSelected ? AppColors.deepYellow : AppColors.lightGrey1,
                         width: isSelected ? 2 : 1,
                       ),
                     ),
@@ -60,10 +60,10 @@ class _Step3WidgetState extends State<Step3Widget> {
                           width: 22,
                           height: 22,
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primary : Colors.white,
+                            color: isSelected ? AppColors.deepYellow : Colors.white,
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: isSelected ? AppColors.primary : AppColors.lightGrey1,
+                              color: isSelected ? AppColors.deepYellow : AppColors.lightGrey1,
                               width: 2,
                             ),
                           ),
@@ -77,12 +77,12 @@ class _Step3WidgetState extends State<Step3Widget> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? AppColors.primary : Colors.black87,
+                            color: isSelected ? AppColors.deepYellow : Colors.black87,
                           ),
                         ),
                         const Spacer(),
                         if (isSelected)
-                          const Icon(Icons.check_circle, color: AppColors.primary, size: 20)
+                          const Icon(Icons.check_circle, color: AppColors.deepYellow, size: 20)
                       ],
                     ),
                   ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../constants/app_constants.dart';
 import 'steps/step1_widget.dart';
 import 'steps/step2_widget.dart';
@@ -24,7 +23,6 @@ class _SetupPageState extends State<SetupPage> {
   //step widget 단계 표시
   final PageController _controller = PageController();
   double _progress = 1 / 6;
-  int _currentPage = 0;
 
   // 전체 설정을 저장할 데이터 맵
   final Map<String, dynamic> setupData = {
@@ -39,7 +37,8 @@ class _SetupPageState extends State<SetupPage> {
     'showKoreanTranslation': '예',
     'showKoreanPronunciation': '아니오',
   };
- //각 step widget에서 입력이 완료되면 updateDate() 호출해서 부모에게 데이터 전달
+
+  //각 step widget에서 입력이 완료되면 updateDate() 호출해서 부모에게 데이터 전달
   void updateData(String key, dynamic value) {
     setState(() {
       setupData[key] = value;
@@ -50,81 +49,142 @@ class _SetupPageState extends State<SetupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
-        leading: _currentPage > 0
-            ? GestureDetector(
-                onTap: () {
-                  _controller.previousPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.ease,
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: SvgPicture.asset(AppIcons.previousNoBg),
-                ),
-              )
-            : null,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(4),
-          child: LinearProgressIndicator( //progress bar
-            value: _progress,
-            backgroundColor: AppColors.lightGrey1,
-            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-            minHeight: 4,
+
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Color(0xFF8A6A00),
+          ),
+          onPressed: () {
+            if (_controller.hasClients && _controller.page! > 0) {
+              _controller.previousPage(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.ease,
+              );
+            } else {
+              Navigator.of(context)
+                  .pushReplacementNamed('/onboarding');
+            }
+          },
+        ),
+
+        title: const Text(
+          "Tomoni",
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF8A6A00),
           ),
         ),
+
+        centerTitle: true,
       ),
+
       body: SafeArea(
-        child: PageView(
-          controller: _controller,
-          //손가락으로 못넘기고 버튼 눌러야만 단계별로 넘어가도록 설정 (필수입력항목 체크)
-          physics: const NeverScrollableScrollPhysics(),
-          onPageChanged: (index) {
-            setState(() {
-              _currentPage = index;
-              _progress = index >= 6 ? 1.0 : (index + 1) / 6;
-            });
-          },
+        child: Column(
           children: [
-            Step1Widget( //onCompleted() 안에 내용 다 선택하면 updateData
-              pageController: _controller,
-              onCompleted: (gender, year, month, day) {
-                updateData('gender', gender == 'female' ? '여성' : '남성');
-                updateData('birthDate', '$year.$month.$day');
-              },
+
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 30,
+              ),
+              child: Column(
+                children: [
+
+                  Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Step ${(_progress * 6).round()} of 6",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        "${(_progress * 100).toInt()}% Complete",
+                        style: const TextStyle(
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  ClipRRect(
+                    borderRadius:
+                    BorderRadius.circular(20),
+                    child: LinearProgressIndicator(
+                      value: _progress,
+                      minHeight: 8,
+                      backgroundColor:
+                      const Color(0xFFE6E6E6),
+                      valueColor:
+                      const AlwaysStoppedAnimation(
+                        Color(0xFFF4D35E),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
-            Step2Widget(
-              pageController: _controller,
-              onCompleted: (level) => updateData('level', level),
-            ),
-            Step3Widget(
-              pageController: _controller,
-              onCompleted: (duration) => updateData('duration', duration),
-            ),
-            Step4Widget(
-              pageController: _controller,
-              onCompleted: (purposes) => updateData('purposes', purposes),
-            ),
-            Step5Widget(
-              pageController: _controller,
-              onCompleted: (hobbies) => updateData('hobbies', hobbies),
-            ),
-            Step6Widget(
-              pageController: _controller,
-              onCompleted: (speed, start, trans, pron) {
-                updateData('aiSpeed', speed);
-                updateData('showContentFromStart', start);
-                updateData('showKoreanTranslation', trans);
-                updateData('showKoreanPronunciation', pron);
-              },
-            ),
-            SummaryWidget( //선택한 정보 표시
-              pageController: _controller,
-              data: setupData, //사용자가 입력한 setupData 맵을 이용
+
+            Expanded(
+              child: PageView(
+
+                controller: _controller,
+                //손가락으로 못넘기고 버튼 눌러야만 단계별로 넘어가도록 설정 (필수입력항목 체크)
+                physics: const NeverScrollableScrollPhysics(),
+                onPageChanged: (index) {
+                  setState(() =>
+                  _progress = index >= 6 ? 1.0 : (index + 1) / 6);
+                },
+                children: [
+                  Step1Widget( //onCompleted() 안에 내용 다 선택하면 updateData
+                    pageController: _controller,
+                    onCompleted: (gender, year, month, day) {
+                      updateData('gender', gender == 'female' ? '여성' : '남성');
+                      updateData('birthDate', '$year.$month.$day');
+                    },
+                  ),
+                  Step2Widget(
+                    pageController: _controller,
+                    onCompleted: (level) => updateData('level', level),
+                  ),
+                  Step3Widget(
+                    pageController: _controller,
+                    onCompleted: (duration) => updateData('duration', duration),
+                  ),
+                  Step4Widget(
+                    pageController: _controller,
+                    onCompleted: (purposes) => updateData('purposes', purposes),
+                  ),
+                  Step5Widget(
+                    pageController: _controller,
+                    onCompleted: (hobbies) => updateData('hobbies', hobbies),
+                  ),
+                  Step6Widget(
+                    pageController: _controller,
+                    onCompleted: (speed, start, trans, pron) {
+                      updateData('aiSpeed', speed);
+                      updateData('showContentFromStart', start);
+                      updateData('showKoreanTranslation', trans);
+                      updateData('showKoreanPronunciation', pron);
+                    },
+                  ),
+                  SummaryWidget( //선택한 정보 표시
+                    pageController: _controller,
+                    data: setupData, //사용자가 입력한 setupData 맵을 이용
+                  ),
+                ],
+              ),
             ),
           ],
         ),

@@ -78,10 +78,11 @@ class _HomeCalendarState extends State<HomeCalendar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12), // 12pt 모서리
+        borderRadius: BorderRadius.circular(40),
+        border: Border.all(color: const Color(0xFFE5E5E5)),
       ),
       child: Column(
         children: [

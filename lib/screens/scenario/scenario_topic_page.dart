@@ -16,8 +16,11 @@ class _ScenarioTopicPageState extends State<ScenarioTopicPage> {
   List<String> recommendations = [];
   final List<String> customTopics = [];
   String? selectedTopic;
+  String? customTopic;
   final TextEditingController _controller = TextEditingController();
   bool _isLoading = true;
+
+  static const _selectedColor = Color(0xFF807019);
 
   @override
   void initState() {
@@ -44,6 +47,91 @@ class _ScenarioTopicPageState extends State<ScenarioTopicPage> {
     }
   }
 
+  Future<void> _showTopicDialog() async {
+    _controller.text = customTopic ?? '';
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('직접 주제 입력'),
+          content: TextField(
+            controller: _controller,
+            autofocus: true,
+            decoration: const InputDecoration(
+              hintText: '연습하고 싶은 상황을 입력하세요',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                final text = _controller.text.trim();
+                setState(() {
+                  if (text.isEmpty) {
+                    customTopic = null;
+                    if (selectedTopic != null &&
+                        customTopics.contains(selectedTopic)) {
+                      selectedTopic = null;
+                    }
+                  } else {
+                    customTopic = text;
+                    if (!customTopics.contains(text)) {
+                      customTopics.add(text);
+                    }
+                    selectedTopic = text;
+                  }
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildTopicCard(String topic, {String? prefix}) {
+    final isSelected = selectedTopic == topic;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => setState(() => selectedTopic = topic),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? _selectedColor : Colors.grey.shade300,
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  prefix != null ? "$prefix $topic" : topic,
+                  style: const TextStyle(fontSize: 15),
+                ),
+              ),
+              Icon(
+                isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
+                color: isSelected ? _selectedColor : Colors.grey,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScenarioPageLayout(
@@ -63,48 +151,84 @@ class _ScenarioTopicPageState extends State<ScenarioTopicPage> {
         }
       },
       child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Padding(
+              padding: EdgeInsets.symmetric(vertical: 48),
+              child: Center(child: CircularProgressIndicator()),
+            )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const ScenarioSectionTitle(title: "AI의 추천 주제"),
-                ...recommendations.asMap().entries.map((entry) {
-                  final topic = entry.value;
-                  final index = entry.key + 1;
-                  return ScenarioItemBox(
-                    isSelected: selectedTopic == topic,
-                    onTap: () => setState(() => selectedTopic = topic),
-                    child: Text("($index) $topic", style: const TextStyle(fontSize: 18)),
-                  );
-                }),
-                const SizedBox(height: 20),
-                const ScenarioSectionTitle(title: "직접 주제 입력하기"),
-                ScenarioInputRow(
-                  controller: _controller,
-                  onAdd: () {
-                    if (_controller.text.isNotEmpty) {
-                      setState(() {
-                        customTopics.add(_controller.text);
-                        _controller.clear();
-                      });
-                    }
-                  },
+                const Text(
+                  "대화 주제 선택",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "AI 친구와 함께 연습하고 싶은\n대화 상황을 골라보세요.",
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  "💡 AI의 추천 주제",
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
-                ...customTopics.map(
-                  (topic) => ScenarioItemBox(
-                    isSelected: selectedTopic == topic,
-                    onTap: () => setState(() => selectedTopic = topic),
-                    onDelete: () => setState(() {
-                      customTopics.remove(topic);
-                      if (selectedTopic == topic) selectedTopic = null;
-                    }),
-                    child: Text(
-                      topic,
-                      style: const TextStyle(fontSize: 18, color: Colors.blue),
+                ...recommendations.asMap().entries.map(
+                      (entry) => _buildTopicCard(
+                        entry.value,
+                        prefix: "(${entry.key + 1})",
+                      ),
+                    ),
+                const SizedBox(height: 24),
+                const Text(
+                  "✏ 직접 주제 입력하기",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: _showTopicDialog,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: customTopic != null &&
+                                customTopic!.isNotEmpty &&
+                                selectedTopic == customTopic
+                            ? _selectedColor
+                            : Colors.grey.shade300,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            customTopic == null || customTopic!.isEmpty
+                                ? "연습하고 싶은 상황을 입력해보세요"
+                                : customTopic!,
+                            style: TextStyle(
+                              color: customTopic == null ||
+                                      customTopic!.isEmpty
+                                  ? Colors.grey
+                                  : Colors.black,
+                            ),
+                          ),
+                        ),
+                        const Icon(Icons.edit),
+                      ],
                     ),
                   ),
                 ),
+                if (customTopics.length > 1) ...[
+                  const SizedBox(height: 16),
+                  ...customTopics.where((t) => t != customTopic).map(
+                        (topic) => _buildTopicCard(topic),
+                      ),
+                ],
               ],
             ),
     );

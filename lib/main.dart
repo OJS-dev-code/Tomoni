@@ -12,6 +12,7 @@ import 'screens/splash_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/auth/login_page.dart';
 import 'screens/auth/signup_page.dart';
+import 'screens/auth/welcome_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
         '/main': (context) => const MainScreen(),
         '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
+        '/welcome': (context) => const WelcomePage(),
       },
     );
   }

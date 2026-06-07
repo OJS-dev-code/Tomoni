@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import '../constants/app_constants.dart';
@@ -31,7 +29,6 @@ class _SplashScreenState extends State<SplashScreen>
     );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
-
     _checkLoginStatus();
   }
 
@@ -67,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen>
     }
 
     if (mounted) {
-      Navigator.of(context).pushReplacementNamed('/login');
+      Navigator.of(context).pushReplacementNamed('/welcome');
     }
   }
 
@@ -80,9 +77,58 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
       body: Stack(
         children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFFFF4CC),
+                  Color(0xFFFFFBF5),
+                  Color(0xFFE5F8FF),
+                ],
+                stops: [0.0, 0.55, 1.0],
+              ),
+            ),
+          ),
+          Positioned(
+            top: -120,
+            left: -120,
+            child: Container(
+              width: 350,
+              height: 350,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Color(0xFFFFF0A8),
+                    Color(0xFFFFF8E1),
+                    Color(0x00FFF8E1),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -120,
+            right: -120,
+            child: Container(
+              width: 350,
+              height: 350,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Color(0xFFDDF7FF),
+                    Color(0xFFF5FCFF),
+                    Color(0x00F5FCFF),
+                  ],
+                ),
+              ),
+            ),
+          ),
           Center(
             child: FadeTransition(
               opacity: _animation,
@@ -92,8 +138,8 @@ class _SplashScreenState extends State<SplashScreen>
                   const Text(
                     'Tomoni',
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 48,
+                      color: AppColors.deepYellow,
+                      fontSize: 52,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 2,
                     ),
@@ -103,7 +149,7 @@ class _SplashScreenState extends State<SplashScreen>
                     Text(
                       '서버 준비중',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.92),
+                        color: AppColors.deepYellow.withValues(alpha: 0.85),
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 0.5,
@@ -120,7 +166,7 @@ class _SplashScreenState extends State<SplashScreen>
               left: 0,
               right: 0,
               child: TopLoadingBar(
-                valueColor: Colors.white,
+                valueColor: AppColors.deepYellow,
                 backgroundColor: Color(0x33FFFFFF),
               ),
             ),

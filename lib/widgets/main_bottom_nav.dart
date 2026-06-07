@@ -15,40 +15,91 @@ class MainBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 85,
+      height: 95,
       decoration: const BoxDecoration(
-        color: AppColors.pastelLightgreen,
+        color: Colors.white,
         border: Border(
-          top: BorderSide(color: Colors.black12, width: 0.5),
+          top: BorderSide(
+            color: Colors.black12,
+            width: 0.5,
+          ),
         ),
       ),
       child: SafeArea(
         top: false,
+        bottom: true,
         child: Row(
           children: [
-            _buildNavItem(0, SvgPicture.asset(AppIcons.note, width: 33, height: 33, colorFilter: const ColorFilter.mode(AppColors.black, BlendMode.srcIn))),
-            _buildNavItem(1, const Icon(Icons.home_filled, size: 38, color: AppColors.black)),
-            _buildNavItem(2, SvgPicture.asset(AppIcons.setting, width: 33, height: 33, colorFilter: const ColorFilter.mode(AppColors.black, BlendMode.srcIn))),
+            _buildNavItem(
+              0,
+              const Icon(
+                Icons.home_outlined,
+                size: 24,
+              ),
+              "홈",
+            ),
+            _buildNavItem(
+              1,
+              SvgPicture.asset(
+                AppIcons.note,
+                width: 24,
+                height: 24,
+              ),
+              "피드백",
+            ),
+            _buildNavItem(
+              2,
+              SvgPicture.asset(
+                AppIcons.setting,
+                width: 24,
+                height: 24,
+              ),
+              "설정",
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildNavItem(int index, Widget iconWidget) {
-    bool isSelected = currentIndex == index;
+  Widget _buildNavItem(
+      int index,
+      Widget iconWidget,
+      String label,
+      ) {
+    final bool isSelected = currentIndex == index;
+
+    final Color color = isSelected
+        ? const Color(0xFF807019)
+        : Colors.grey;
+
     return Expanded(
       child: InkWell(
         onTap: () => onTap(index),
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Center(
-            child: iconWidget,
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                color,
+                BlendMode.srcIn,
+              ),
+              child: iconWidget,
+            ),
+
+            const SizedBox(height: 4),
+
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isSelected
+                    ? FontWeight.w600
+                    : FontWeight.w400,
+                color: color,
+              ),
+            ),
+          ],
         ),
       ),
     );

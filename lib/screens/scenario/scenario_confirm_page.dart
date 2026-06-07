@@ -30,6 +30,7 @@ class _ScenarioConfirmPageState extends State<ScenarioConfirmPage> {
 
   static const _genderLabels = {'female': '여성', 'male': '남성'};
   static const _voiceLabels = {'female': 'shimmer', 'male': 'onyx'};
+  static const _selectedColor = Color(0xFF807019);
 
   @override
   void initState() {
@@ -99,105 +100,174 @@ class _ScenarioConfirmPageState extends State<ScenarioConfirmPage> {
     }
   }
 
+  Widget _buildSettingRow(IconData icon, String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: const Color(0xFFF7F4E8),
+            child: Icon(icon, color: _selectedColor, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+                Text(
+                  value.isNotEmpty ? value : '-',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScenarioPageLayout(
-      title: widget.topic,
-      confirmText: _isStarting ? '준비 중...' : '시작하기',
+      title: "",
+      confirmText: _isStarting ? '준비 중...' : '대화 시작하기',
       onConfirm: (_isStarting || _isLoadingPreview) ? null : _startSession,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const ScenarioSectionTitle(title: '대화 주제'),
+          const Text(
+            "📁 선택한 대화 주제",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
-            color: Colors.white,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE8CF6B)),
+            ),
             child: Text(
               widget.topic,
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-          const SizedBox(height: 20),
-          const ScenarioSectionTitle(title: '대화 목표'),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            color: Colors.white,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: widget.goals.asMap().entries.map((entry) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    '(${entry.key + 1}) ${entry.value}',
-                    style: const TextStyle(fontSize: 16),
+          const SizedBox(height: 28),
+          const Text(
+            "🎯 대화 목표",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          ...widget.goals.asMap().entries.map(
+                (entry) => Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                );
-              }).toList(),
-            ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 12,
+                        backgroundColor: const Color(0xFFE8CF6B),
+                        child: Text(
+                          "${entry.key + 1}",
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(child: Text(entry.value)),
+                    ],
+                  ),
+                ),
+              ),
+          const SizedBox(height: 28),
+          const Text(
+            "✨ AI 추천 설정",
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
           if (_isLoadingPreview)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
               child: Center(child: CircularProgressIndicator()),
             )
           else ...[
-            _buildInfoBox('AI 역할', _aiRole, Icons.person_outline),
-            _buildInfoBox('당신의 역할', _userRole, Icons.face_outlined),
-            _buildInfoBox('대화 장소', _location, Icons.location_on_outlined),
-            const SizedBox(height: 8),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                children: [
+                  _buildSettingRow(
+                    Icons.smart_toy_outlined,
+                    "AI 역할",
+                    _aiRole,
+                  ),
+                  const Divider(),
+                  _buildSettingRow(
+                    Icons.person_outline,
+                    "나의 역할",
+                    _userRole,
+                  ),
+                  const Divider(),
+                  _buildSettingRow(
+                    Icons.location_on_outlined,
+                    "대화 장소",
+                    _location,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
               ),
               child: CustomToggle(
                 title: 'AI 역할 성별',
-                subtitle: '선택한 성별에 맞는 AI 음성($_genderLabel · $_voiceLabel)이 사용됩니다.',
+                subtitle:
+                    '선택한 성별에 맞는 AI 음성($_genderLabel · $_voiceLabel)이 사용됩니다.',
                 options: const ['여성', '남성'],
                 currentValue: _genderLabel,
                 onChanged: _onGenderChanged,
               ),
             ),
           ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoBox(String label, String value, IconData icon) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
+          const SizedBox(height: 20),
           Container(
-            width: 50,
-            height: 50,
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.black12),
+              color: const Color(0xFFFFF7D6),
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: Colors.black54),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
+            child: const Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text(
-                  value.isNotEmpty ? value : '-',
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
+                Icon(Icons.lightbulb_outline, color: _selectedColor),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text("준비 완료!\n설정한 내용으로 대화를 시작할게요."),
                 ),
               ],
             ),

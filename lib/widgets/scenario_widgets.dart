@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../constants/app_constants.dart';
+import '../widgets/custom_button.dart';
 
 /// 상황극 설정 페이지의 공통 레이아웃 (확인 버튼을 하단 고정에서 콘텐츠 끝으로 이동)
 class ScenarioPageLayout extends StatelessWidget {
@@ -13,68 +13,40 @@ class ScenarioPageLayout extends StatelessWidget {
     super.key,
     required this.title,
     required this.child,
-    this.onConfirm,
+    required this.onConfirm,
     this.confirmText = "확인",
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        toolbarHeight: 80, // 툴바 높이를 키워서 상단 여백 확보
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: SvgPicture.asset(AppIcons.previousWhBg),
-          ),
-        ),
-      ),
+      backgroundColor: AppColors.background,
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // 타이틀 영역을 스크롤 내부로 이동
-            Container(
-              width: double.infinity,
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 30),
-              margin: const EdgeInsets.only(bottom: 12),
-              child: Text(
-                title,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back,
+                  color: Colors.black87,
+                ),
+                onPressed: () => Navigator.pop(context),
               ),
             ),
+
+            const SizedBox(height: 20),
+
             child,
             const SizedBox(height: 40),
             // 하단 확인 버튼
-            Align(
-              alignment: Alignment.bottomRight,
-              child: GestureDetector(
-                onTap: onConfirm,
-                child: Opacity(
-                  opacity: onConfirm == null ? 0.5 : 1,
-                  child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    confirmText,
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                ),
-              ),
+            CustomButton(
+              text: confirmText,
+              onPressed: onConfirm,
             ),
+
             const SizedBox(height: 20),
           ],
         ),

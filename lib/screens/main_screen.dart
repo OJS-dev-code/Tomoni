@@ -12,14 +12,14 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 1;
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     // 매번 빌드할 때 새로운 리스트를 참조하도록 하여 상태 동기화 보장
     final List<Widget> pages = [
-      const NotePage(),
       const HomePage(),
+      const NotePage(),
       const SettingsPage(),
     ];
 

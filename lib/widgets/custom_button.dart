@@ -27,11 +27,13 @@ class CustomButton extends StatelessWidget {
       height: height,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: isPrimary ? AppColors.primary : Colors.white,
-          foregroundColor: isPrimary ? Colors.white : AppColors.darkGrey,
+          backgroundColor: isPrimary ? AppColors.deepYellow : Colors.white,
+          foregroundColor: isPrimary ? Colors.white : AppColors.beigeGray,
           elevation: 0,
+          shadowColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(30),
             side: isPrimary 
                 ? BorderSide.none 
                 : const BorderSide(color: AppColors.lightGrey1),

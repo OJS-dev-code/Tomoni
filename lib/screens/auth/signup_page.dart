@@ -17,15 +17,46 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 
   Future<void> _handleSignup() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
-    if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      _showMessage('모든 항목을 입력해주세요.');
+    if (email.isEmpty) {
+      _showMessage('이메일을 입력해주세요.');
+      return;
+    }
+
+    final emailRegex = RegExp(r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$');
+    if (!emailRegex.hasMatch(email)) {
+      _showMessage('올바른 이메일 형식이 아닙니다.');
+      return;
+    }
+
+    if (password.isEmpty) {
+      _showMessage('비밀번호를 입력해주세요.');
+      return;
+    }
+
+    if (password.length < 6) {
+      _showMessage('비밀번호는 6자 이상이어야 합니다.');
+      return;
+    }
+
+    if (confirmPassword.isEmpty) {
+      _showMessage('비밀번호 확인을 입력해주세요.');
       return;
     }
 
@@ -40,7 +71,7 @@ class _SignupPageState extends State<SignupPage> {
       await AuthService.instance.signUp(email: email, password: password);
 
       if (mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/setup', (route) => false);
+        Navigator.of(context).pushReplacementNamed('/onboarding');
       }
     } on FirebaseAuthException catch (error) {
       _showMessage(firebaseAuthErrorMessage(error));
@@ -53,21 +84,12 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
-  void _showMessage(String message) {
-    if (!mounted) {
-      return;
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.background,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.black),
@@ -96,32 +118,31 @@ class _SignupPageState extends State<SignupPage> {
             const SizedBox(height: 50),
             _buildTextField("이메일", _emailController, false),
             const SizedBox(height: 20),
-            _buildTextField("비밀번호", _passwordController, true),
+            _buildTextField(
+              "비밀번호",
+              _passwordController,
+              true,
+              isVisible: _isPasswordVisible,
+              toggleVisibility: () {
+                setState(() => _isPasswordVisible = !_isPasswordVisible);
+              },
+            ),
             const SizedBox(height: 20),
-            _buildTextField("비밀번호 확인", _confirmPasswordController, true),
+            _buildTextField(
+              "비밀번호 확인",
+              _confirmPasswordController,
+              true,
+              isVisible: _isConfirmPasswordVisible,
+              toggleVisibility: () {
+                setState(
+                  () => _isConfirmPasswordVisible = !_isConfirmPasswordVisible,
+                );
+              },
+            ),
             const SizedBox(height: 40),
             CustomButton(
               text: _isLoading ? "가입 중..." : "회원가입",
               onPressed: _isLoading ? null : _handleSignup,
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('이미 계정이 있으신가요?'),
-                TextButton(
-                  onPressed: _isLoading
-                      ? null
-                      : () => Navigator.of(context).pop(),
-                  child: const Text(
-                    '로그인',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
             ),
           ],
         ),
@@ -132,8 +153,10 @@ class _SignupPageState extends State<SignupPage> {
   Widget _buildTextField(
     String label,
     TextEditingController controller,
-    bool isPassword,
-  ) {
+    bool isPassword, {
+    bool isVisible = false,
+    VoidCallback? toggleVisibility,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -144,11 +167,25 @@ class _SignupPageState extends State<SignupPage> {
         const SizedBox(height: 8),
         TextField(
           controller: controller,
-          obscureText: isPassword,
+          cursorColor: AppColors.darkGrey,
+          obscureText: isPassword ? !isVisible : false,
           enabled: !_isLoading,
           decoration: InputDecoration(
             hintText: "$label 입력",
-            hintStyle: const TextStyle(color: AppColors.lightGrey2, fontSize: 14),
+            filled: true,
+            fillColor: Colors.white,
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(
+                      isVisible ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: toggleVisibility,
+                  )
+                : null,
+            hintStyle: const TextStyle(
+              color: AppColors.lightGrey2,
+              fontSize: 14,
+            ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
@@ -163,7 +200,10 @@ class _SignupPageState extends State<SignupPage> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.primary, width: 2),
+              borderSide: const BorderSide(
+                color: AppColors.primary,
+                width: 2,
+              ),
             ),
           ),
         ),
