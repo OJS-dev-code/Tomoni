@@ -34,6 +34,7 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
   Map<String, dynamic>? _availableHint;
   bool _hintVisible = false;
   bool _isSending = false;
+  bool _isPreparingAiResponse = false;
   bool _isRecording = false;
   bool _isTranscribing = false;
   bool _isPlayingAudio = false;
@@ -55,10 +56,36 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
 
     final opening = widget.session.openingMessage;
     if (!widget.session.isUserFirst && opening != null) {
-      _messages.add(_mapMessage(opening));
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      _isPreparingAiResponse = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        setState(() {});
         _scrollToBottom();
-        _speakAiMessage(opening['text'] as String? ?? '');
+
+        final aiSpeed = _userService.data['aiSpeed'] ?? '현지인 속도로';
+        final speed = _audioService.speedFromSetting(aiSpeed);
+        final openingText = opening['text'] as String? ?? '';
+        String? audioUrl = widget.session.openingAudioUrl;
+
+        try {
+          audioUrl = await _audioService.prepareAiTts(
+            openingText,
+            speed: speed,
+            voice: widget.session.ttsVoice,
+            preloadedAudioUrl: audioUrl,
+          );
+        } catch (_) {
+          audioUrl = null;
+        }
+
+        if (!mounted) return;
+        _messages.add(_mapMessage(opening));
+        setState(() => _isPreparingAiResponse = false);
+        _scrollToBottom();
+        await _speakAiMessage(
+          openingText,
+          preloadedAudioUrl: audioUrl,
+        );
       });
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
@@ -84,7 +111,11 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
     });
   }
 
-  Future<void> _speakAiMessage(String text, {double? speed}) async {
+  Future<void> _speakAiMessage(
+    String text, {
+    double? speed,
+    String? preloadedAudioUrl,
+  }) async {
     if (text.trim().isEmpty || !mounted) return;
 
     final settings = _userService.data;
@@ -100,6 +131,7 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
         text,
         speed: resolvedSpeed,
         voice: widget.session.ttsVoice,
+        preloadedAudioUrl: preloadedAudioUrl,
       );
     } on ApiException catch (error) {
       if (mounted) {
@@ -242,6 +274,7 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
 
     setState(() {
       _isSending = true;
+      _isPreparingAiResponse = true;
       _availableHint = null;
       _hintVisible = false;
       _waitingForUserStart = false;
@@ -286,6 +319,26 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
       final aiMessage = _mapMessage(
         Map<String, dynamic>.from(response['aiMessage'] as Map),
       );
+      final aiAudioUrl = response['aiAudioUrl'] as String?;
+
+      if (mounted) setState(() => _isSending = false);
+
+      final settings = _userService.data;
+      final aiSpeed = settings['aiSpeed'] ?? '현지인 속도로';
+      final speed = _audioService.speedFromSetting(aiSpeed);
+      final aiText = aiMessage['text'] as String? ?? '';
+      String? resolvedAudioUrl;
+      try {
+        resolvedAudioUrl = await _audioService.prepareAiTts(
+          aiText,
+          speed: speed,
+          voice: widget.session.ttsVoice,
+          preloadedAudioUrl: aiAudioUrl,
+        );
+      } catch (_) {
+        resolvedAudioUrl = null;
+      }
+
       _messages.add(aiMessage);
 
       _completedGoalIndices = Set<int>.from(
@@ -301,10 +354,15 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
         _clearHint();
       }
 
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() => _isPreparingAiResponse = false);
+      }
       _scrollToBottom();
 
-      await _speakAiMessage(aiMessage['text'] as String? ?? '');
+      await _speakAiMessage(
+        aiText,
+        preloadedAudioUrl: resolvedAudioUrl,
+      );
 
       if (allGoalsCompleted) {
         await _handleGoalsCompleted();
@@ -312,7 +370,9 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
     } on ApiException catch (error) {
       _messages.removeLast();
       if (mounted) {
-        setState(() {});
+        setState(() {
+          _isPreparingAiResponse = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(error.message)),
         );
@@ -482,8 +542,11 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
     final showPronunciationInitially = settings['showKoreanPronunciation'] == '예';
     final aiSpeed = settings['aiSpeed'] ?? '현지인 속도로';
     final totalGoals = widget.session.goals.length;
-    final micEnabled =
-        !_isSending && !_sessionEnded && !_isPlayingAudio && !_isTranscribing;
+    final micEnabled = !_isSending &&
+        !_isPreparingAiResponse &&
+        !_sessionEnded &&
+        !_isPlayingAudio &&
+        !_isTranscribing;
     final bottomInset = _micAreaHeight +
         (_hintVisible && _availableHint != null && !_sessionEnded
             ? _hintPanelHeight + 12
@@ -610,8 +673,11 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
                   child: ListView.builder(
                     controller: _scrollController,
                     padding: EdgeInsets.fromLTRB(20, 10, 20, bottomInset + 12),
-                    itemCount: _messages.length,
+                    itemCount: _messages.length + (_isPreparingAiResponse ? 1 : 0),
                     itemBuilder: (context, index) {
+                      if (_isPreparingAiResponse && index == _messages.length) {
+                        return _buildAiPreparingBubble();
+                      }
                       final msg = _messages[index];
                       final isAi = msg['isAI'] == true;
                       final messageText = msg['text'] as String? ?? '';
@@ -698,6 +764,18 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
                         padding: EdgeInsets.only(bottom: 6),
                         child: Text(
                           '음성 인식 중…',
+                          style: TextStyle(
+                            color: AppColors.darkGrey,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      )
+                    else if (_isPreparingAiResponse)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 6),
+                        child: Text(
+                          '준비 중…',
                           style: TextStyle(
                             color: AppColors.darkGrey,
                             fontSize: 12,
@@ -792,6 +870,54 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
     );
   }
 
+  Widget _buildAiPreparingBubble() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+            bottomRight: Radius.circular(16),
+            bottomLeft: Radius.circular(4),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.lightGrey2,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              '준비 중…',
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.darkGrey.withValues(alpha: 0.9),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   String _micStatusLabel() {
     if (_isRecording) return '녹음 중 · 탭하면 종료';
     if (_waitingForUserStart) return '빨간 버튼을 눌러 먼저 말해보세요';
@@ -800,7 +926,11 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
   }
 
   Widget _buildHintButton(bool hintAvailable) {
-    final enabled = hintAvailable && !_isSending && !_isRecording && !_isTranscribing;
+    final enabled = hintAvailable &&
+        !_isSending &&
+        !_isPreparingAiResponse &&
+        !_isRecording &&
+        !_isTranscribing;
     return SizedBox(
       width: 56,
       height: 56,
@@ -861,7 +991,7 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
   }
 
   Widget _buildMicButton(bool enabled) {
-    if (_isTranscribing || (_isSending && !_isRecording)) {
+    if (_isTranscribing || _isSending || _isPreparingAiResponse) {
       return Container(
         width: 72,
         height: 72,

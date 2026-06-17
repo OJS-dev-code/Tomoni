@@ -39,6 +39,7 @@ class ScenarioSession {
     required this.speakerFirst,
     required this.sceneNote,
     this.openingMessage,
+    this.openingAudioUrl,
   });
 
   final String sessionId;
@@ -51,6 +52,7 @@ class ScenarioSession {
   final String speakerFirst;
   final String sceneNote;
   final Map<String, dynamic>? openingMessage;
+  final String? openingAudioUrl;
 
   bool get isUserFirst => speakerFirst == 'user';
 
@@ -69,6 +71,7 @@ class ScenarioSession {
       openingMessage: opening is Map<String, dynamic>
           ? Map<String, dynamic>.from(opening)
           : null,
+      openingAudioUrl: json['openingAudioUrl'] as String?,
     );
   }
 }

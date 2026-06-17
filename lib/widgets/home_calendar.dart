@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import '../constants/app_constants.dart';
 import '../models/feedback_note.dart';
 import '../services/app_refresh.dart';
@@ -34,49 +35,80 @@ class _HomeCalendarState extends State<HomeCalendar> {
     _loadNotes();
   }
 
+  DateTime _startOfWeek(DateTime date) {
+    final daysFromSunday = date.weekday % 7;
+    return DateTime(date.year, date.month, date.day - daysFromSunday);
+  }
+
+  DateTime _endOfWeek(DateTime date) {
+    return _startOfWeek(date).add(const Duration(days: 6));
+  }
+
   Future<void> _loadNotes() async {
+    final weekStart = _startOfWeek(_focusedDay);
+    final weekEnd = _endOfWeek(_focusedDay);
+
+    final months = <String, ({int year, int month})>{};
+    void addMonth(DateTime d) {
+      final key = '${d.year}-${d.month}';
+      months[key] = (year: d.year, month: d.month);
+    }
+
+    addMonth(weekStart);
+    addMonth(weekEnd);
+
     try {
-      final notes = await NoteService.instance.getNotes(
-        year: _focusedDay.year,
-        month: _focusedDay.month,
+      final results = await Future.wait(
+        months.values.map(
+          (m) => NoteService.instance.getNotes(year: m.year, month: m.month),
+        ),
       );
+
+      final merged = <String, FeedbackNote>{};
+      for (final list in results) {
+        for (final note in list) {
+          merged[note.id] = note;
+        }
+      }
+
       if (!mounted) return;
-      setState(() => _notes = notes);
+      setState(() => _notes = merged.values.toList());
     } on ApiException catch (_) {
       if (!mounted) return;
       setState(() => _notes = []);
     }
   }
 
-  void _updateMonth(DateTime newDate) {
-    setState(() {
-      _focusedDay = newDate;
-    });
+  void _updateFocusedDay(DateTime newDate) {
+    setState(() => _focusedDay = newDate);
     _loadNotes();
   }
 
-  // 대한민국 공휴일 체크 로직 (양력 기준)
+  void _changeWeek(int deltaWeeks) {
+    _updateFocusedDay(_focusedDay.add(Duration(days: 7 * deltaWeeks)));
+  }
+
   bool _isHoliday(DateTime date) {
-    // 일요일 체크 (weekday: 7)
     if (date.weekday == 7) return true;
 
-    // 주요 법정 공휴일 (양력)
-    final String md = "${date.month}-${date.day}";
+    final md = '${date.month}-${date.day}';
     const holidays = {
-      "1-1": "신정",
-      "3-1": "삼일절",
-      "5-5": "어린이날",
-      "6-6": "현충일",
-      "8-15": "광복절",
-      "10-3": "개천절",
-      "10-9": "한글날",
-      "12-25": "성탄절",
+      '1-1': '신정',
+      '3-1': '삼일절',
+      '5-5': '어린이날',
+      '6-6': '현충일',
+      '8-15': '광복절',
+      '10-3': '개천절',
+      '10-9': '한글날',
+      '12-25': '성탄절',
     };
     return holidays.containsKey(md);
   }
 
   @override
   Widget build(BuildContext context) {
+    final weekStart = _startOfWeek(_focusedDay);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
       decoration: BoxDecoration(
@@ -87,12 +119,14 @@ class _HomeCalendarState extends State<HomeCalendar> {
       child: Column(
         children: [
           _CalendarHeader(
-            focusedDay: _focusedDay,
-            onMonthChanged: _updateMonth,
+            weekStart: weekStart,
+            weekEnd: _endOfWeek(_focusedDay),
+            onDateSelected: _updateFocusedDay,
+            onWeekChanged: _changeWeek,
           ),
           const SizedBox(height: 16),
-          _CalendarGrid(
-            focusedDay: _focusedDay,
+          _WeekCalendarRow(
+            weekStart: weekStart,
             isHoliday: _isHoliday,
             notes: _notes,
           ),
@@ -103,55 +137,61 @@ class _HomeCalendarState extends State<HomeCalendar> {
 }
 
 class _CalendarHeader extends StatelessWidget {
-  final DateTime focusedDay;
-  final ValueChanged<DateTime> onMonthChanged;
+  final DateTime weekStart;
+  final DateTime weekEnd;
+  final ValueChanged<DateTime> onDateSelected;
+  final ValueChanged<int> onWeekChanged;
 
   const _CalendarHeader({
-    required this.focusedDay,
-    required this.onMonthChanged,
+    required this.weekStart,
+    required this.weekEnd,
+    required this.onDateSelected,
+    required this.onWeekChanged,
   });
 
+  String _formatWeekRange() {
+    if (weekStart.year == weekEnd.year && weekStart.month == weekEnd.month) {
+      return '${weekStart.year}년 ${weekStart.month}월 ${weekStart.day}일 - ${weekEnd.day}일';
+    }
+    if (weekStart.year == weekEnd.year) {
+      return '${weekStart.year}년 ${weekStart.month}월 ${weekStart.day}일 - '
+          '${weekEnd.month}월 ${weekEnd.day}일';
+    }
+    return '${weekStart.year}년 ${weekStart.month}월 ${weekStart.day}일 - '
+        '${weekEnd.year}년 ${weekEnd.month}월 ${weekEnd.day}일';
+  }
+
   void _showPicker(BuildContext context) {
-    int tempYear = focusedDay.year;
-    int tempMonth = focusedDay.month;
+    DateTime tempDate = weekStart;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("연도 및 월 선택", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        title: const Text(
+          '날짜 선택',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         content: SizedBox(
           height: 200,
-          child: Row(
-            children: [
-              // 연도 선택기
-              Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 40,
-                  scrollController: FixedExtentScrollController(initialItem: tempYear - 2026),
-                  onSelectedItemChanged: (index) => tempYear = 2026 + index,
-                  children: List.generate(100, (i) => Center(child: Text("${2026 + i}년"))), // 2026년부터 100년간 선택 가능
-                ),
-              ),
-              // 월 선택기
-              Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 40,
-                  scrollController: FixedExtentScrollController(initialItem: tempMonth - 1),
-                  onSelectedItemChanged: (index) => tempMonth = index + 1,
-                  children: List.generate(12, (i) => Center(child: Text("${i + 1}월"))),
-                ),
-              ),
-            ],
+          child: CupertinoDatePicker(
+            mode: CupertinoDatePickerMode.date,
+            initialDateTime: tempDate,
+            minimumDate: DateTime(2020),
+            maximumDate: DateTime(2100),
+            onDateTimeChanged: (value) => tempDate = value,
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("취소")),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('취소'),
+          ),
           TextButton(
             onPressed: () {
-              onMonthChanged(DateTime(tempYear, tempMonth));
+              onDateSelected(tempDate);
               Navigator.pop(context);
             },
-            child: const Text("확인"),
+            child: const Text('확인'),
           ),
         ],
       ),
@@ -160,32 +200,45 @@ class _CalendarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const headerStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87);
+    const headerStyle = TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+      color: Colors.black87,
+    );
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        GestureDetector(
-          onTap: () => _showPicker(context),
-          child: Row(
-            children: [
-              Text("${focusedDay.year}년 ${focusedDay.month}월", style: headerStyle),
-              const SizedBox(width: 4),
-              const Icon(Icons.arrow_drop_down, color: Colors.black87),
-            ],
+        Flexible(
+          child: GestureDetector(
+            onTap: () => _showPicker(context),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    _formatWeekRange(),
+                    style: headerStyle,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.arrow_drop_down, color: Colors.black87),
+              ],
+            ),
           ),
         ),
         Row(
           children: [
             IconButton(
-              onPressed: () => onMonthChanged(DateTime(focusedDay.year, focusedDay.month - 1)),
+              onPressed: () => onWeekChanged(-1),
               icon: const Icon(Icons.chevron_left, color: AppColors.darkGrey),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
             const SizedBox(width: 15),
             IconButton(
-              onPressed: () => onMonthChanged(DateTime(focusedDay.year, focusedDay.month + 1)),
+              onPressed: () => onWeekChanged(1),
               icon: const Icon(Icons.chevron_right, color: AppColors.darkGrey),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
@@ -197,66 +250,55 @@ class _CalendarHeader extends StatelessWidget {
   }
 }
 
-class _CalendarGrid extends StatelessWidget {
-  final DateTime focusedDay;
+class _WeekCalendarRow extends StatelessWidget {
+  final DateTime weekStart;
   final bool Function(DateTime) isHoliday;
   final List<FeedbackNote> notes;
 
-  const _CalendarGrid({
-    required this.focusedDay,
+  const _WeekCalendarRow({
+    required this.weekStart,
     required this.isHoliday,
     required this.notes,
   });
 
   @override
   Widget build(BuildContext context) {
-    final firstDay = DateTime(focusedDay.year, focusedDay.month, 1);
-    final lastDay = DateTime(focusedDay.year, focusedDay.month + 1, 0);
-    final firstWeekday = firstDay.weekday % 7;
-    final List<String> weekDays = ["日", "月", "火", "水", "木", "金", "土"];
+    const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
+    final today = DateTime.now();
 
     return Column(
       children: [
         Row(
           children: weekDays.map((day) {
             Color textColor = AppColors.darkGrey;
-            if (day == "日") textColor = AppColors.pinkyRed;
-            if (day == "土") textColor = AppColors.primary;
+            if (day == '日') textColor = AppColors.pinkyRed;
+            if (day == '土') textColor = AppColors.primary;
             return Expanded(
               child: Text(
                 day,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  color: textColor,
-                ),
+                style: TextStyle(fontSize: 18, color: textColor),
               ),
             );
           }).toList(),
         ),
-        const SizedBox(height: 6),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: 42,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 7,
-            mainAxisSpacing: 2,
-            mainAxisExtent: 42,
-          ),
-          itemBuilder: (context, index) {
-            final dayNum = index - firstWeekday + 1;
-            if (dayNum < 1 || dayNum > lastDay.day) return const SizedBox();
+        const SizedBox(height: 10),
+        Row(
+          children: List.generate(7, (index) {
+            final current = weekStart.add(Duration(days: index));
+            final holiday = isHoliday(current);
+            final isToday = current.year == today.year &&
+                current.month == today.month &&
+                current.day == today.day;
 
-            final current = DateTime(focusedDay.year, focusedDay.month, dayNum);
-            bool holiday = isHoliday(current);
-            bool isToday = current.year == DateTime.now().year && current.month == DateTime.now().month && current.day == DateTime.now().day;
-
-            // 해당 날짜의 피드백 노트 개수 확인
-            final noteCount = notes.where((note) =>
-              note.date.year == current.year &&
-              note.date.month == current.month &&
-              note.date.day == current.day).length;
+            final noteCount = notes
+                .where(
+                  (note) =>
+                      note.date.year == current.year &&
+                      note.date.month == current.month &&
+                      note.date.day == current.day,
+                )
+                .length;
 
             Color? noteColor;
             if (noteCount == 1) {
@@ -267,30 +309,38 @@ class _CalendarGrid extends StatelessWidget {
               noteColor = AppColors.heavyYellow;
             }
 
-            return Center(
-              child: Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: isToday ? Colors.transparent : (noteColor ?? Colors.transparent),
-                  shape: BoxShape.circle,
-                  border: isToday 
-                    ? Border.all(color: AppColors.black, width: 0.8)
-                    : null,
-                ),
-                child: Center(
-                  child: Text(
-                    "$dayNum",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-                      color: holiday ? AppColors.pinkyRed : (current.weekday == 6 ? AppColors.primary : Colors.black87),
+            return Expanded(
+              child: Center(
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: isToday
+                        ? Colors.transparent
+                        : (noteColor ?? Colors.transparent),
+                    shape: BoxShape.circle,
+                    border: isToday
+                        ? Border.all(color: AppColors.black, width: 0.8)
+                        : null,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${current.day}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                        color: holiday
+                            ? AppColors.pinkyRed
+                            : (current.weekday == 6
+                                ? AppColors.primary
+                                : Colors.black87),
+                      ),
                     ),
                   ),
                 ),
               ),
             );
-          },
+          }),
         ),
       ],
     );

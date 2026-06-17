@@ -1,3 +1,4 @@
+import logging
 import uuid
 from datetime import datetime, timezone
 from typing import Any
@@ -5,13 +6,19 @@ from typing import Any
 from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
 from app.models.scenario import ChatMessage, SendMessageResponse, SessionCreateResponse
-from app.services import feedback_service, gemini_service, user_service
+from app.services import feedback_service, gemini_service, openai_audio_service, user_service
 # Phase 5 (보류): mistake_service — 약점 기반 주제 추천
 # from app.services import mistake_service
 from app.services.goal_completion_service import normalize_goal_completion
 from app.services.firebase import get_firestore
 from app.services.hint_match import texts_match_hint
-from app.services.voice_service import pick_voice_for_gender, suggest_gender_from_role
+from app.services.voice_service import (
+    pick_voice_for_gender,
+    speed_from_ai_speed_setting,
+    suggest_gender_from_role,
+)
+
+logger = logging.getLogger(__name__)
 
 SESSIONS_COLLECTION = "sessions"
 MESSAGES_SUBCOLLECTION = "messages"
@@ -74,6 +81,22 @@ def _get_session_doc(session_id: str) -> dict[str, Any]:
 def _assert_owner(session: dict[str, Any], uid: str) -> None:
     if session.get("uid") != uid:
         raise PermissionError("Not allowed to access this session")
+
+
+def _synthesize_session_audio(uid: str, text: str, voice: str) -> str | None:
+    cleaned = text.strip()
+    if not cleaned:
+        return None
+    try:
+        profile = _profile_as_dict(uid)
+        speed = speed_from_ai_speed_setting(profile.get("aiSpeed"))
+        audio_url, _ = openai_audio_service.synthesize_speech(
+            cleaned, speed=speed, voice=voice
+        )
+        return audio_url
+    except Exception as exc:
+        logger.warning("Session TTS failed: %s", exc)
+        return None
 
 
 def get_recommended_topics(uid: str) -> list[str]:
@@ -147,10 +170,14 @@ def create_session(
     )
 
     opening_message = None
+    opening_audio_url = None
     opening_raw = start.get("openingMessage")
     if speaker_first == "ai" and opening_raw:
         opening_message = _to_chat_message(opening_raw, is_ai=True)
         _save_message(session_id, opening_message)
+        opening_audio_url = _synthesize_session_audio(
+            uid, opening_message.text, tts_voice
+        )
 
     return SessionCreateResponse(
         sessionId=session_id,
@@ -163,6 +190,7 @@ def create_session(
         speakerFirst=speaker_first,
         sceneNote=scene_note,
         openingMessage=opening_message,
+        openingAudioUrl=opening_audio_url,
     )
 
 
@@ -269,11 +297,15 @@ def send_message(
         session_update
     )
 
+    tts_voice = str(session.get("ttsVoice", ""))
+    ai_audio_url = _synthesize_session_audio(uid, ai_message.text, tts_voice)
+
     return SendMessageResponse(
         aiMessage=ai_message,
         recommendedAnswer=recommended_message,
         completedGoalIndices=updated_completed,
         allGoalsCompleted=all_goals_completed,
+        aiAudioUrl=ai_audio_url,
     )
 
 

@@ -85,7 +85,7 @@ class WelcomePage extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 const Text(
-                  'Master Japanese with a friendly\ncompanion by your side.',
+                  'AI와 함께 일본어 회화를 연습해 보세요.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 18,
@@ -96,7 +96,7 @@ class WelcomePage extends StatelessWidget {
 
                 const SizedBox(height: 60),
 
-                // Get Started 버튼
+                // 시작하기 버튼
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: SizedBox(
@@ -122,7 +122,7 @@ class WelcomePage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Get Started',
+                            '회원가입',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -165,7 +165,7 @@ class WelcomePage extends StatelessWidget {
                         ),
                       ),
                       child: const Text(
-                        'I already have an account',
+                        '이미 계정이 있음',
                         style: TextStyle(
                           color: AppColors.deepYellow,
                           fontWeight: FontWeight.w500,
@@ -192,23 +192,24 @@ class WelcomePage extends StatelessWidget {
                       ),
                       children: [
                         TextSpan(
-                          text: 'By continuing, you agree to our ',
+                          text: '계속하시면면 ',
                         ),
                         TextSpan(
-                          text: 'Terms of Service',
+                          text: '이용약관',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: AppColors.deepYellow,
                           ),
                         ),
-                        TextSpan(text: ' and\n'),
+                        TextSpan(text: ' 및\n'),
                         TextSpan(
-                          text: 'Privacy Policy.',
+                          text: '개인정보 처리방침',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: AppColors.deepYellow,
                           ),
                         ),
+                        TextSpan(text: '에 동의합니다.'),
                       ],
                     ),
                   ),

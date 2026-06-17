@@ -45,6 +45,13 @@ def suggest_gender_from_role(ai_role: str) -> str:
     return "female"
 
 
+def speed_from_ai_speed_setting(ai_speed: str | None) -> float:
+    """사용자 프로필 aiSpeed → OpenAI TTS speed."""
+    if ai_speed and "천천히" in ai_speed:
+        return 0.8
+    return 1.0
+
+
 def pick_voice_for_ai_role(ai_role: str, ai_gender: str | None = None) -> str:
     """AI 역할·성별에 맞는 OpenAI TTS 목소리."""
     if ai_gender:

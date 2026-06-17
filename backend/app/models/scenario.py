@@ -52,6 +52,7 @@ class SessionCreateResponse(BaseModel):
     speaker_first: str = Field(alias="speakerFirst")
     scene_note: str = Field(default="", alias="sceneNote")
     opening_message: ChatMessage | None = Field(default=None, alias="openingMessage")
+    opening_audio_url: str | None = Field(default=None, alias="openingAudioUrl")
 
     model_config = {"populate_by_name": True, "by_alias": True}
 
@@ -75,6 +76,7 @@ class SendMessageResponse(BaseModel):
         default_factory=list, alias="completedGoalIndices"
     )
     all_goals_completed: bool = Field(default=False, alias="allGoalsCompleted")
+    ai_audio_url: str | None = Field(default=None, alias="aiAudioUrl")
 
     model_config = {"populate_by_name": True, "by_alias": True}
 
