@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tomoni/constants/app_constants.dart';
 
 import '../../services/api_service.dart';
 import '../../services/scenario_service.dart';
@@ -140,9 +141,19 @@ class _ScenarioConfirmPageState extends State<ScenarioConfirmPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "📁 선택한 대화 주제",
-            style: TextStyle(fontWeight: FontWeight.bold),
+          const Row(
+            children: [
+              Icon(
+                Icons.forum_outlined,
+                color: Color(0xFF807019),
+                size: 22,
+              ),
+              SizedBox(width: 8),
+              Text(
+                "선택한 대화 주제",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           Container(
@@ -151,25 +162,33 @@ class _ScenarioConfirmPageState extends State<ScenarioConfirmPage> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE8CF6B)),
             ),
             child: Text(
               widget.topic,
               style: const TextStyle(
                 fontSize: 15,
-                fontWeight: FontWeight.w600,
               ),
             ),
           ),
-          const SizedBox(height: 28),
-          const Text(
-            "🎯 대화 목표",
-            style: TextStyle(fontWeight: FontWeight.bold),
+          const SizedBox(height: 32),
+          const Row(
+            children: [
+              Icon(
+                Icons.gps_fixed_rounded,
+                color: Color(0xFF807019),
+                size: 22,
+              ),
+              SizedBox(width: 8),
+              Text(
+                "대화 목표",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           ...widget.goals.asMap().entries.map(
                 (entry) => Container(
-                  margin: const EdgeInsets.only(bottom: 10),
+                  margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -194,10 +213,20 @@ class _ScenarioConfirmPageState extends State<ScenarioConfirmPage> {
                   ),
                 ),
               ),
-          const SizedBox(height: 28),
-          const Text(
-            "✨ AI 추천 설정",
-            style: TextStyle(fontWeight: FontWeight.bold),
+          const SizedBox(height: 32),
+          const Row(
+            children: [
+              Icon(
+                Icons.auto_awesome,
+                color: Color(0xFF807019),
+                size: 22,
+              ),
+              SizedBox(width: 8),
+              Text(
+                "AI 추천 설정",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           if (_isLoadingPreview)
@@ -211,7 +240,7 @@ class _ScenarioConfirmPageState extends State<ScenarioConfirmPage> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 children: [
@@ -235,23 +264,53 @@ class _ScenarioConfirmPageState extends State<ScenarioConfirmPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 32),
+            const Row(
+              children: [
+                Icon(
+                  Icons.people_outline_rounded,
+                  color: Color(0xFF807019),
+                  size: 20,
+                ),
+                SizedBox(width: 8),
+                Text(
+                  "AI 역할 성별",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: CustomToggle(
-                title: 'AI 역할 성별',
-                subtitle:
+                borderRadius: BorderRadius.circular(12),
+                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
                     '선택한 성별에 맞는 AI 음성($_genderLabel · $_voiceLabel)이 사용됩니다.',
-                options: const ['여성', '남성'],
-                currentValue: _genderLabel,
-                onChanged: _onGenderChanged,
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  CustomToggle(
+                    title: '',
+                    subtitle: '',
+                    options: const ['여성', '남성'],
+                    currentValue: _genderLabel,
+                    onChanged: _onGenderChanged,
+                  ),
+                ],
               ),
             ),
+
           ],
           const SizedBox(height: 20),
           Container(
@@ -259,7 +318,7 @@ class _ScenarioConfirmPageState extends State<ScenarioConfirmPage> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: const Color(0xFFFFF7D6),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: const Row(
               crossAxisAlignment: CrossAxisAlignment.start,

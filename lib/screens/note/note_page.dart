@@ -164,7 +164,7 @@ class _NotePageState extends State<NotePage> {
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           side: const BorderSide(color: AppColors.lightGrey1),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(30),
                           ),
                         ),
                         child: const Text('취소', style: TextStyle(color: AppColors.darkGrey)),
@@ -172,7 +172,7 @@ class _NotePageState extends State<NotePage> {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: ElevatedButton(
+                      child: FilledButton(
                         onPressed: () {
                           setState(() {
                             filterDate = DateTime(tempYear, tempMonth);
@@ -180,13 +180,12 @@ class _NotePageState extends State<NotePage> {
                           Navigator.pop(context);
                           _loadNotes();
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.deepYellow,
                           foregroundColor: Colors.white,
-                          elevation: 0,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(30),
                           ),
                         ),
                         child: const Text('적용'),
@@ -217,41 +216,49 @@ class _NotePageState extends State<NotePage> {
     final filteredList = _sortedNotes;
 
     return Scaffold(
-      backgroundColor: AppColors.pastelLightgreen,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.only(left: 16, right: 16, top: 40, bottom: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    const Text(
-                      '피드백 노트',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      backgroundColor: AppColors.background,
+        body: SafeArea(
+        child: Padding(
+        padding: const EdgeInsets.symmetric(
+        horizontal: 24,
+        vertical: 16,
+    ),
+    child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+            Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "피드백 노트",
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF807019),
                     ),
-                    Row(
-                      children: [
-                        _buildSortButton('날짜 순', 'date'),
-                        const Text(' | ', style: TextStyle(color: Colors.black26)),
-                        _buildSortButton('점수 순', 'score'),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+
+                  Row(
+                    children: [
+                      _buildSortButton("날짜 순", "date"),
+                      const Text(" | "),
+                      _buildSortButton("점수 순", "score"),
+                    ],
+                  ),
+                ],
               ),
-            ),
+
             const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                color: Colors.white,
+            Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Row(
                   children: [
                     IconButton(
@@ -293,7 +300,7 @@ class _NotePageState extends State<NotePage> {
                   ],
                 ),
               ),
-            ),
+
             const SizedBox(height: 12),
             Expanded(
               child: _isLoading
@@ -330,8 +337,7 @@ class _NotePageState extends State<NotePage> {
                               onRefresh: _loadNotes,
                               child: ListView.builder(
                                 physics: const AlwaysScrollableScrollPhysics(),
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
-                                itemCount: filteredList.length,
+                                padding: EdgeInsets.zero,                                itemCount: filteredList.length,
                                 itemBuilder: (context, index) {
                                   final note = filteredList[index];
                                   return NoteItem(
@@ -350,7 +356,7 @@ class _NotePageState extends State<NotePage> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildSortButton(String label, String value) {
@@ -361,7 +367,7 @@ class _NotePageState extends State<NotePage> {
         label,
         style: TextStyle(
           fontSize: 14,
-          color: isSelected ? AppColors.primary : Colors.black45,
+          color: isSelected ? AppColors.deepYellow : Colors.black45,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
       ),

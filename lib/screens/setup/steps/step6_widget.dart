@@ -37,10 +37,8 @@ class _Step6WidgetState extends State<Step6Widget> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: AppColors.border,
-        ),
+        borderRadius: BorderRadius.circular(12),
+
       ),
       child: Row(
         children: [
@@ -84,7 +82,7 @@ class _Step6WidgetState extends State<Step6Widget> {
             onChanged: onChanged,
 
             activeColor: Colors.white,
-            activeTrackColor: const Color(0xFF2F6699),
+            activeTrackColor: AppColors.navy,
 
             inactiveThumbColor: Colors.white,
             inactiveTrackColor: const Color(0xFFE5E5E5),
@@ -97,7 +95,7 @@ class _Step6WidgetState extends State<Step6Widget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
           Expanded(
@@ -112,7 +110,7 @@ class _Step6WidgetState extends State<Step6Widget> {
                     iconBgColor: const Color(0xFFDDEEFF),
                     iconColor: const Color(0xFF4B74A6),
                     title: "천천히 말하기",
-                    subtitle: "음성을 0.8배속으로 재생합니다.",
+                    subtitle: "상황극 중 AI가 말하는 속도를 느리게 재생합니다.",
                     value: aiSpeed == "천천히",
                     onChanged: (value) {
                       setState(() {
@@ -121,14 +119,14 @@ class _Step6WidgetState extends State<Step6Widget> {
                     },
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
 
                   _buildSettingCard(
                     icon: Icons.subtitles_outlined,
                     iconBgColor: const Color(0xFFDDF4E4),
                     iconColor: const Color(0xFF4E7D57),
                     title: "일본어 자막",
-                    subtitle: "히라가나와 한자를 표시합니다.",
+                    subtitle: "상황극 중 AI의 음성을 일본어 텍스트로 보여드립니다.",
                     value: showContentFromStart == "예",
                     onChanged: (value) {
                       setState(() {
@@ -137,14 +135,14 @@ class _Step6WidgetState extends State<Step6Widget> {
                     },
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
 
                   _buildSettingCard(
                     icon: Icons.translate,
                     iconBgColor: const Color(0xFFFFF1C9),
                     iconColor: const Color(0xFFB8860B),
                     title: "한국어 번역",
-                    subtitle: "한국어 번역을 함께 표시합니다.",
+                    subtitle: "상황극 중 AI의 음성을 한국어 번역 텍스트로 보여드립니다.",
                     value: showKoreanTranslation == "예",
                     onChanged: (value) {
                       setState(() {
@@ -153,14 +151,14 @@ class _Step6WidgetState extends State<Step6Widget> {
                     },
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
 
                   _buildSettingCard(
                     icon: Icons.record_voice_over_outlined,
                     iconBgColor: const Color(0xFFDDEEFF),
                     iconColor: const Color(0xFF4B74A6),
-                    title: "발음 가이드",
-                    subtitle: "추천 답변에 발음 정보를 표시합니다.",
+                    title: "한국어 발음",
+                    subtitle: "상황극 중 AI의 추천 답변을 한글 발음으로 보여드립니다.",
                     value: showKoreanPronunciation == "예",
                     onChanged: (value) {
                       setState(() {
@@ -169,7 +167,7 @@ class _Step6WidgetState extends State<Step6Widget> {
                     },
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                 ],
               ),
             ),

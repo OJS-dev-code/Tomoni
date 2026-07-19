@@ -29,8 +29,10 @@ class StepNavigationButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 40.0),
-      child: Row(
+      padding: const EdgeInsets.only(
+        top: 20,
+        bottom: 40,
+      ),      child: Row(
         children: [
           if (showPrevious)
             Expanded(

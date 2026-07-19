@@ -23,6 +23,7 @@ class _SetupPageState extends State<SetupPage> {
   //step widget 단계 표시
   final PageController _controller = PageController();
   double _progress = 1 / 6;
+  int _currentIndex = 0;
 
   // 전체 설정을 저장할 데이터 맵
   final Map<String, dynamic> setupData = {
@@ -50,92 +51,51 @@ class _SetupPageState extends State<SetupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.background,
-        elevation: 0,
-
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Color(0xFF8A6A00),
-          ),
-          onPressed: () {
-            if (_controller.hasClients && _controller.page! > 0) {
-              _controller.previousPage(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.ease,
-              );
-            } else {
-              Navigator.of(context)
-                  .pushReplacementNamed('/onboarding');
-            }
-          },
-        ),
-
-        title: const Text(
-          "Tomoni",
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF8A6A00),
-          ),
-        ),
-
-        centerTitle: true,
-      ),
 
       body: SafeArea(
         child: Column(
           children: [
-
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 30,
-              ),
-              child: Column(
-                children: [
-
-                  Row(
-                    mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Step ${(_progress * 6).round()} of 6",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
+            if (_currentIndex != 6)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Step ${(_progress * 6).round()} of 6",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      Text(
-                        "${(_progress * 100).toInt()}% Complete",
-                        style: const TextStyle(
-                          color: Colors.black54,
+                        Text(
+                          "${(_progress * 100).toInt()}% Complete",
+                          style: const TextStyle(
+                            color: Colors.black54,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
 
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 12),
 
-                  ClipRRect(
-                    borderRadius:
-                    BorderRadius.circular(20),
-                    child: LinearProgressIndicator(
-                      value: _progress,
-                      minHeight: 8,
-                      backgroundColor:
-                      const Color(0xFFE6E6E6),
-                      valueColor:
-                      const AlwaysStoppedAnimation(
-                        Color(0xFFF4D35E),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: LinearProgressIndicator(
+                        value: _progress,
+                        minHeight: 8,
+                        backgroundColor: const Color(0xFFE6E6E6),
+                        valueColor: const AlwaysStoppedAnimation(
+                          AppColors.deepYellow,
+                        ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 20),
-                ],
+                    // const SizedBox(height: 20),
+                  ],
+                ),
               ),
-            ),
-
             Expanded(
               child: PageView(
 
@@ -143,8 +103,10 @@ class _SetupPageState extends State<SetupPage> {
                 //손가락으로 못넘기고 버튼 눌러야만 단계별로 넘어가도록 설정 (필수입력항목 체크)
                 physics: const NeverScrollableScrollPhysics(),
                 onPageChanged: (index) {
-                  setState(() =>
-                  _progress = index >= 6 ? 1.0 : (index + 1) / 6);
+                  setState(() {
+                    _currentIndex = index;
+                    _progress = index >= 6 ? 1.0 : (index + 1) / 6;
+                  });
                 },
                 children: [
                   Step1Widget( //onCompleted() 안에 내용 다 선택하면 updateData

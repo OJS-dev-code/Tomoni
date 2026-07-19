@@ -54,7 +54,7 @@ class _Step2WidgetState extends State<Step2Widget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -77,7 +77,7 @@ class _Step2WidgetState extends State<Step2Widget> {
                     },
                     child: Container(
                       margin:
-                      const EdgeInsets.only(bottom: 16),
+                      const EdgeInsets.only(bottom: 12),
                       padding:
                       const EdgeInsets.symmetric(
                         horizontal: 20,
@@ -86,11 +86,11 @@ class _Step2WidgetState extends State<Step2Widget> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius:
-                        BorderRadius.circular(20),
+                        BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
                               ? AppColors.deepYellow
-                              : AppColors.border,
+                              : Colors.transparent,
                           width: isSelected ? 2 : 1,
                         ),
                       ),
@@ -142,7 +142,7 @@ class _Step2WidgetState extends State<Step2Widget> {
                             const Icon(
                               Icons.check_circle,
                               color:
-                              Color(0xFF8A6A00),
+                              AppColors.deepYellow,
                               size: 28,
                             ),
                         ],

@@ -13,7 +13,7 @@ class StepHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 20),
+        const SizedBox(height: 32),
         Text(
           title,
           style: const TextStyle(
@@ -29,7 +29,7 @@ class StepHeader extends StatelessWidget {
             style: const TextStyle(color: Colors.black54, fontSize: 14),
           ),
         ],
-        const SizedBox(height: 40),
+        const SizedBox(height: 32),
       ],
     );
   }

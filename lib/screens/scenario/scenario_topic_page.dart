@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../services/scenario_service.dart';
 import '../../widgets/scenario_widgets.dart';
+import '../../widgets/custom_input_dialog.dart';
 import 'scenario_goal_page.dart';
 
 class ScenarioTopicPage extends StatefulWidget {
@@ -48,51 +49,33 @@ class _ScenarioTopicPageState extends State<ScenarioTopicPage> {
   }
 
   Future<void> _showTopicDialog() async {
-    _controller.text = customTopic ?? '';
-
-    await showDialog(
+    final text = await CustomInputDialog.show(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('직접 주제 입력'),
-          content: TextField(
-            controller: _controller,
-            autofocus: true,
-            decoration: const InputDecoration(
-              hintText: '연습하고 싶은 상황을 입력하세요',
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('취소'),
-            ),
-            TextButton(
-              onPressed: () {
-                final text = _controller.text.trim();
-                setState(() {
-                  if (text.isEmpty) {
-                    customTopic = null;
-                    if (selectedTopic != null &&
-                        customTopics.contains(selectedTopic)) {
-                      selectedTopic = null;
-                    }
-                  } else {
-                    customTopic = text;
-                    if (!customTopics.contains(text)) {
-                      customTopics.add(text);
-                    }
-                    selectedTopic = text;
-                  }
-                });
-                Navigator.pop(context);
-              },
-              child: const Text('확인'),
-            ),
-          ],
-        );
-      },
+      title: '직접 주제 입력',
+      initialValue: customTopic,
+      hintText: '연습하고 싶은 상황을 입력하세요',
     );
+
+    if (text == null) return;
+
+    setState(() {
+      if (text.isEmpty) {
+        customTopic = null;
+
+        if (selectedTopic != null &&
+            customTopics.contains(selectedTopic)) {
+          selectedTopic = null;
+        }
+      } else {
+        customTopic = text;
+
+        if (!customTopics.contains(text)) {
+          customTopics.add(text);
+        }
+
+        selectedTopic = text;
+      }
+    });
   }
 
   Widget _buildTopicCard(String topic, {String? prefix}) {
@@ -108,10 +91,12 @@ class _ScenarioTopicPageState extends State<ScenarioTopicPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected ? _selectedColor : Colors.grey.shade300,
+            border: isSelected
+                ? Border.all(
+              color: _selectedColor,
               width: 1.5,
-            ),
+            )
+                : null,
           ),
           child: Row(
             children: [
@@ -167,10 +152,20 @@ class _ScenarioTopicPageState extends State<ScenarioTopicPage> {
                   "AI 친구와 함께 연습하고 싶은\n대화 상황을 골라보세요.",
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
-                const SizedBox(height: 24),
-                const Text(
-                  "💡 AI의 추천 주제",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                const SizedBox(height: 32),
+                Row(
+                  children: const [
+                    Icon(
+                      Icons.auto_awesome,
+                      size: 18,
+                      color: _selectedColor,
+                    ),
+                    SizedBox(width: 6),
+                    Text(
+                      "AI의 추천 주제",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 ...recommendations.asMap().entries.map(
@@ -179,10 +174,20 @@ class _ScenarioTopicPageState extends State<ScenarioTopicPage> {
                         prefix: "(${entry.key + 1})",
                       ),
                     ),
-                const SizedBox(height: 24),
-                const Text(
-                  "✏ 직접 주제 입력하기",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                const SizedBox(height: 32),
+                Row(
+                  children: const [
+                    Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: _selectedColor,
+                    ),
+                    SizedBox(width: 6),
+                    Text(
+                      "직접 주제 입력하기",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 InkWell(
@@ -194,14 +199,14 @@ class _ScenarioTopicPageState extends State<ScenarioTopicPage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: customTopic != null &&
-                                customTopic!.isNotEmpty &&
-                                selectedTopic == customTopic
-                            ? _selectedColor
-                            : Colors.grey.shade300,
+                      border: customTopic != null &&
+                          customTopic!.isNotEmpty &&
+                          selectedTopic == customTopic
+                          ? Border.all(
+                        color: _selectedColor,
                         width: 1.5,
-                      ),
+                      )
+                          : null,
                     ),
                     child: Row(
                       children: [
@@ -211,6 +216,7 @@ class _ScenarioTopicPageState extends State<ScenarioTopicPage> {
                                 ? "연습하고 싶은 상황을 입력해보세요"
                                 : customTopic!,
                             style: TextStyle(
+                              fontSize: 15,
                               color: customTopic == null ||
                                       customTopic!.isEmpty
                                   ? Colors.grey
@@ -224,7 +230,7 @@ class _ScenarioTopicPageState extends State<ScenarioTopicPage> {
                   ),
                 ),
                 if (customTopics.length > 1) ...[
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   ...customTopics.where((t) => t != customTopic).map(
                         (topic) => _buildTopicCard(topic),
                       ),

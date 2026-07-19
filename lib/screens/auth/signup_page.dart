@@ -97,11 +97,11 @@ class _SignupPageState extends State<SignupPage> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 30.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
             const Text(
               "회원가입",
               style: TextStyle(
@@ -115,7 +115,7 @@ class _SignupPageState extends State<SignupPage> {
               "토모니와 함께 일본어 공부를 시작해 보세요!",
               style: TextStyle(fontSize: 16, color: AppColors.darkGrey),
             ),
-            const SizedBox(height: 50),
+            const SizedBox(height: 40),
             _buildTextField("이메일", _emailController, false),
             const SizedBox(height: 20),
             _buildTextField(
@@ -201,8 +201,8 @@ class _SignupPageState extends State<SignupPage> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
-                color: AppColors.primary,
-                width: 2,
+                color: AppColors.deepYellow,
+                width: 1.5,
               ),
             ),
           ),

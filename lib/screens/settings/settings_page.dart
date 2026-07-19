@@ -5,6 +5,9 @@ import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/user_data_service.dart';
 import '../../widgets/settings_widgets.dart';
+import '../../widgets/selectable_chip.dart';
+import '../../widgets/custom_selectable_chip.dart';
+import '../../widgets/direct_input_field.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -167,6 +170,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _showPurposeDialog() {
     final customController = TextEditingController();
+    final tempPurposes = Set<String>.from(purposes);
+    final tempCustomPurposes = List<String>.from(customPurposes);
 
     showModalBottomSheet(
       context: context,
@@ -191,94 +196,93 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 12,
-                      children: [
-                        ..._defaultPurposes.map((option) {
-                          final isSelected = purposes.contains(option);
-                          return _buildPurposeChip(
-                            option,
-                            isSelected,
-                            () {
-                              modalSetState(() {
-                                if (isSelected) {
-                                  purposes.remove(option);
-                                } else {
-                                  purposes.add(option);
-                                }
-                              });
-                              setState(() {});
-                            },
-                          );
-                        }),
-                        ...customPurposes.map((option) {
-                          final isSelected = purposes.contains(option);
-                          return _buildCustomPurposeChip(
-                            option,
-                            isSelected,
-                            () {
-                              modalSetState(() {
-                                if (isSelected) {
-                                  purposes.remove(option);
-                                } else {
-                                  purposes.add(option);
-                                }
-                              });
-                              setState(() {});
-                            },
-                            () {
-                              modalSetState(() {
-                                customPurposes.remove(option);
-                                purposes.remove(option);
-                              });
-                              setState(() {});
-                            },
-                          );
-                        }),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: customController,
-                            decoration: InputDecoration(
-                              hintText: "직접 입력",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            final text = customController.text.trim();
-                            if (text.isEmpty) return;
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    spacing: 10,
+                    runSpacing: 12,
+                    children: [
+                      ..._defaultPurposes.map((option) {
+                        final isSelected = tempPurposes.contains(option);
+                        return SelectableChip(
+                          label: option,
+                          isSelected: isSelected,
+                          onTap: () {
                             modalSetState(() {
-                              if (!_defaultPurposes.contains(text) &&
-                                  !customPurposes.contains(text)) {
-                                customPurposes.add(text);
+                              if (isSelected) {
+                                tempPurposes.remove(option);
+                              } else {
+                                tempPurposes.add(option);
                               }
-                              purposes.add(text);
                             });
-                            setState(() {});
-                            customController.clear();
                           },
-                          child: const Text("추가"),
-                        ),
-                      ],
+                        );
+                      }),
+                      ...tempCustomPurposes.map((option) {
+                        final isSelected = tempPurposes.contains(option);
+                        return CustomSelectableChip(
+                          label: option,
+                          isSelected: isSelected,
+                          onTap: () {
+                            modalSetState(() {
+                              if (isSelected) {
+                                tempPurposes.remove(option);
+                              } else {
+                                tempPurposes.add(option);
+                              }
+                            });
+                          },
+                          onDelete: () {
+                            modalSetState(() {
+                              tempCustomPurposes.remove(option);
+                              tempPurposes.remove(option);
+                            });
+                          },
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+
+                    const SizedBox(height: 20),
+
+                    DirectInputField(
+                      controller: customController,
+                      onAdd: () {
+                        final text = customController.text.trim();
+                        if (text.isEmpty) return;
+
+                        modalSetState(() {
+                          if (!_defaultPurposes.contains(text) &&
+                              !tempCustomPurposes.contains(text)) {
+                            tempCustomPurposes.add(text);
+                          }
+                          tempPurposes.add(text);
+                        });
+                        customController.clear();
+                      },
                     ),
                     const SizedBox(height: 20),
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
+                      child: FilledButton(
                         onPressed: () {
+                          setState(() {
+                            purposes = tempPurposes;
+                            customPurposes = tempCustomPurposes;
+                          });
+
                           _saveSettings();
                           Navigator.pop(context);
                         },
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.deepYellow,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size.fromHeight(52),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
                         child: const Text("완료"),
                       ),
                     ),
@@ -294,6 +298,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _showHobbyDialog() {
     final customController = TextEditingController();
+    final tempHobbies = Set<String>.from(hobbies);
+    final tempCustomHobbies = List<String>.from(customHobbies);
 
     showModalBottomSheet(
       context: context,
@@ -317,96 +323,100 @@ class _SettingsPageState extends State<SettingsPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+
                     const SizedBox(height: 16),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 12,
-                      children: [
-                        ..._defaultHobbies.map((option) {
-                          final isSelected = hobbies.contains(option);
-                          return _buildPurposeChip(
-                            option,
-                            isSelected,
-                            () {
-                              modalSetState(() {
-                                if (isSelected) {
-                                  hobbies.remove(option);
-                                } else {
-                                  hobbies.add(option);
-                                }
-                              });
-                              setState(() {});
-                            },
-                          );
-                        }),
-                        ...customHobbies.map((option) {
-                          final isSelected = hobbies.contains(option);
-                          return _buildCustomPurposeChip(
-                            option,
-                            isSelected,
-                            () {
-                              modalSetState(() {
-                                if (isSelected) {
-                                  hobbies.remove(option);
-                                } else {
-                                  hobbies.add(option);
-                                }
-                              });
-                              setState(() {});
-                            },
-                            () {
-                              modalSetState(() {
-                                customHobbies.remove(option);
-                                hobbies.remove(option);
-                              });
-                              setState(() {});
-                            },
-                          );
-                        }),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: customController,
-                            decoration: InputDecoration(
-                              hintText: "직접 입력",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            final text = customController.text.trim();
-                            if (text.isEmpty) return;
+
+                    Align(
+                  alignment: Alignment.centerLeft,
+                  child:               Wrap(
+                    spacing: 10,
+                    runSpacing: 12,
+                    children: [
+                      ..._defaultHobbies.map((option) {
+                        final isSelected = tempHobbies.contains(option);
+                        return SelectableChip(
+                          label: option,
+                          isSelected: isSelected,
+                          onTap: () {
                             modalSetState(() {
-                              if (!_defaultHobbies.contains(text) &&
-                                  !customHobbies.contains(text)) {
-                                customHobbies.add(text);
+                              if (isSelected) {
+                                tempHobbies.remove(option);
+                              } else {
+                                tempHobbies.add(option);
                               }
-                              hobbies.add(text);
                             });
-                            setState(() {});
-                            customController.clear();
                           },
-                          child: const Text("추가"),
-                        ),
-                      ],
+                        );
+                      }),
+                      ...tempCustomHobbies.map((option) {
+                        final isSelected = tempHobbies.contains(option);
+                        return CustomSelectableChip(
+                          label: option,
+                          isSelected: isSelected,
+                          onTap: () {
+                            modalSetState(() {
+                              if (isSelected) {
+                                tempHobbies.remove(option);
+                              } else {
+                                tempHobbies.add(option);
+                              }
+                            });
+                          },
+                          onDelete: () {
+                            modalSetState(() {
+                              tempCustomHobbies.remove(option);
+                              tempHobbies.remove(option);
+                            });
+                          },
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+
+                    const SizedBox(height: 20),
+
+                    DirectInputField(
+                      controller: customController,
+                      onAdd: () {
+                        final text = customController.text.trim();
+                        if (text.isEmpty) return;
+
+                        modalSetState(() {
+                          if (!_defaultHobbies.contains(text) &&
+                              !tempCustomHobbies.contains(text)) {
+                            tempCustomHobbies.add(text);
+                          }
+                          tempHobbies.add(text);
+                        });
+
+                        customController.clear();
+                      },
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 20),
+
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
+                      child: FilledButton(
                         onPressed: () {
+                          setState(() {
+                            hobbies = tempHobbies;
+                            customHobbies = tempCustomHobbies;
+                          });
                           _saveSettings();
                           Navigator.pop(context);
                         },
-                        child: const Text("완료"),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.deepYellow,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size.fromHeight(52),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Text(
+                          "완료",
+                        ),
                       ),
                     ),
                   ],
@@ -419,110 +429,75 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildPurposeChip(
-    String label,
-    bool isSelected,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.lightGrey1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black87,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildCustomPurposeChip(
-    String label,
-    bool isSelected,
-    VoidCallback onTap,
-    VoidCallback onDelete,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.only(
-          left: 16,
-          right: 8,
-          top: 10,
-          bottom: 10,
+
+  void _showInfoDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black26,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.lightGrey1,
+        content: Text(
+          message,
+          style: const TextStyle(
+            fontSize: 15,
+            height: 1.5,
           ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black87,
-              ),
-            ),
-            const SizedBox(width: 4),
-            GestureDetector(
-              onTap: onDelete,
-              child: Icon(
-                Icons.close,
-                size: 18,
-                color: isSelected ? Colors.white : AppColors.darkGrey,
-              ),
-            ),
-          ],
         ),
       ),
     );
   }
 
   Widget _buildAudioRow(
-    IconData icon,
-    String title,
-    String? infoMessage,
-    bool value,
-    ValueChanged<bool> onChanged,
-  ) {
+      IconData icon,
+      String title,
+      String? infoMessage,
+      bool value,
+      ValueChanged<bool> onChanged,
+      ) {
     return SettingsTileBase(
-      infoMessage: infoMessage,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Icon(icon, color: const Color(0xFF807019), size: 22),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: const Color(0xFF807019),
+            size: 22,
+          ),
+
+          const SizedBox(width: 12),
+
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+
+          const SizedBox(width: 6),
+
+          if (infoMessage != null)
+            GestureDetector(
+              onTap: () {
+                _showInfoDialog(context, infoMessage);
+              },
+              child: const Icon(
+                Icons.info_outline,
+                color: Colors.black45,
+                size: 18,
               ),
             ),
-            Switch(
-              value: value,
-              activeColor: const Color(0xFFE7C95F),
-              onChanged: onChanged,
-            ),
-          ],
-        ),
+
+          const Spacer(),
+
+          Switch(
+            value: value,
+            activeColor: const Color(0xFFE7C95F),
+            onChanged: onChanged,
+          ),
+        ],
       ),
     );
   }
@@ -540,15 +515,16 @@ class _SettingsPageState extends State<SettingsPage> {
               const Text(
                 "설정",
                 style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
                   color: Color(0xFF807019),
+                  letterSpacing: -0.3,
                 ),
               ),
               const SizedBox(height: 20),
               const Text(
                 "학습 프로필",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 12),
               SettingsContainer(
@@ -587,11 +563,11 @@ class _SettingsPageState extends State<SettingsPage> {
               const SizedBox(height: 24),
               const Text(
                 "음성 및 자막",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 12),
               _buildAudioRow(
-                Icons.record_voice_over_outlined,
+                Icons.speed,
                 "천천히 말하기",
                 "상황극 중 AI가 말하는 속도를 느리게 재생합니다.",
                 speakSlowly == "예",
@@ -628,7 +604,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: 12),
               _buildAudioRow(
-                Icons.volume_up_outlined,
+                Icons.record_voice_over_outlined,
                 "한국어 발음",
                 "상황극 중 AI의 추천 답변을 한글 발음으로 보여드립니다.",
                 showKoreanPronunciation == "예",
@@ -639,7 +615,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   _saveSettings();
                 },
               ),
-              const SizedBox(height: 100),
+              const SizedBox(height: 32),
             ],
           ),
         ),

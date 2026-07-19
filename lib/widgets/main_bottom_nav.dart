@@ -15,7 +15,7 @@ class MainBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 95,
+      height: 72,
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(
@@ -40,10 +40,9 @@ class MainBottomNav extends StatelessWidget {
             ),
             _buildNavItem(
               1,
-              SvgPicture.asset(
-                AppIcons.note,
-                width: 24,
-                height: 24,
+              const Icon(
+                Icons.article_outlined,
+                size: 24,
               ),
               "피드백",
             ),

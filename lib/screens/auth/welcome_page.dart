@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_constants.dart';
+import '../../../widgets/app_background.dart';
 import 'login_page.dart';
 import 'signup_page.dart';
+
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -12,60 +14,7 @@ class WelcomePage extends StatelessWidget {
       body: Stack(
         children: [
           // 기본 배경
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFFFFF4CC),
-                  Color(0xFFFFFBF5),
-                  Color(0xFFE5F8FF),
-                ],
-                stops: [0.0, 0.55, 1.0],
-              ),
-            ),
-          ),
-
-          // 왼쪽 위 노란빛
-          Positioned(
-            top: -120,
-            left: -120,
-            child: Container(
-              width: 350,
-              height: 350,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    Color(0xFFFFF0A8),
-                    Color(0xFFFFF8E1),
-                    Color(0x00FFF8E1),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // 오른쪽 아래 하늘빛
-          Positioned(
-            bottom: -120,
-            right: -120,
-            child: Container(
-              width: 350,
-              height: 350,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    Color(0xFFDDF7FF),
-                    Color(0xFFF5FCFF),
-                    Color(0x00F5FCFF),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          const AppBackground(),
 
           // 화면 내용
           SafeArea(
@@ -102,7 +51,7 @@ class WelcomePage extends StatelessWidget {
                   child: SizedBox(
                     width: double.infinity,
                     height: 56,
-                    child: ElevatedButton(
+                    child: FilledButton(
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -111,9 +60,9 @@ class WelcomePage extends StatelessWidget {
                           ),
                         );
                       },
-                      style: ElevatedButton.styleFrom(
+                      style: FilledButton.styleFrom(
                         backgroundColor: AppColors.deepYellow,
-                        elevation: 0,
+                        foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -126,14 +75,10 @@ class WelcomePage extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
                             ),
                           ),
                           SizedBox(width: 8),
-                          Icon(
-                            Icons.arrow_forward,
-                            color: Colors.white,
-                          ),
+                          Icon(Icons.arrow_forward),
                         ],
                       ),
                     ),
@@ -148,7 +93,7 @@ class WelcomePage extends StatelessWidget {
                   child: SizedBox(
                     width: double.infinity,
                     height: 56,
-                    child: ElevatedButton(
+                    child: FilledButton(
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -157,9 +102,9 @@ class WelcomePage extends StatelessWidget {
                           ),
                         );
                       },
-                      style: ElevatedButton.styleFrom(
+                      style: FilledButton.styleFrom(
                         backgroundColor: const Color(0xFFFFFBF7),
-                        elevation: 0,
+                        foregroundColor: AppColors.deepYellow,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -167,7 +112,6 @@ class WelcomePage extends StatelessWidget {
                       child: const Text(
                         '이미 계정이 있음',
                         style: TextStyle(
-                          color: AppColors.deepYellow,
                           fontWeight: FontWeight.w500,
                         ),
                       ),

@@ -28,76 +28,17 @@ class SettingsContainer extends StatelessWidget {
 
 /// 설정 항목을 감싸고 좌측 상단에 인포 버튼을 배치하는 베이스 위젯
 class SettingsTileBase extends StatelessWidget {
-  final String? infoMessage;
   final Widget child;
 
-  const SettingsTileBase({super.key, this.infoMessage, required this.child});
-
-  void _showInfoAtPosition(BuildContext context, Offset position) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.transparent,
-      builder: (context) => Stack(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(color: Colors.transparent),
-          ),
-          Positioned(
-            left: position.dx,
-            top: position.dy + 30,
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                width: 250,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.black12),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 2))
-                  ],
-                ),
-                child: Text(
-                  infoMessage ?? "",
-                  style: const TextStyle(fontSize: 14, color: AppColors.black, height: 1.4),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  const SettingsTileBase({
+    super.key,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final GlobalKey iconKey = GlobalKey();
-
     return SettingsContainer(
-      child: Stack(
-        children: [
-          if (infoMessage != null)
-            Positioned(
-              left: 0,
-              top: 0,
-              child: GestureDetector(
-                key: iconKey,
-                onTap: () {
-                  final RenderBox box = iconKey.currentContext!.findRenderObject() as RenderBox;
-                  final Offset position = box.localToGlobal(Offset.zero);
-                  _showInfoAtPosition(context, position);
-                },
-                child: const Icon(Icons.info_outline, size: 20, color: Colors.black45),
-              ),
-            ),
-          Padding(
-            padding: EdgeInsets.only(top: infoMessage != null ? 24 : 0),
-            child: child,
-          ),
-        ],
-      ),
+      child: child,
     );
   }
 }

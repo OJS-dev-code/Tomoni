@@ -3,6 +3,8 @@ import '../../../constants/app_constants.dart';
 import '../../../widgets/step_navigation_buttons.dart';
 import '../../../widgets/step_header.dart';
 import '../../../widgets/direct_input_field.dart';
+import '../../../widgets/selectable_chip.dart';
+import '../../../widgets/custom_selectable_chip.dart';
 
 class Step5Widget extends StatefulWidget {
   final PageController pageController;
@@ -46,7 +48,7 @@ class _Step5WidgetState extends State<Step5Widget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
           Expanded(
@@ -64,15 +66,45 @@ class _Step5WidgetState extends State<Step5Widget> {
                     children: [
                       ...hobbies.map((hobby) {
                         bool isSelected = selectedHobbies.contains(hobby);
-                        return _buildHobbyChip(hobby, isSelected);
+                        return SelectableChip(
+                          label: hobby,
+                          isSelected: isSelected,
+                          onTap: () {
+                            setState(() {
+                              if (isSelected) {
+                                selectedHobbies.remove(hobby);
+                              } else {
+                                selectedHobbies.add(hobby);
+                              }
+                            });
+                          },
+                        );
                       }),
                       ...customHobbies.map((hobby) {
                         bool isSelected = selectedHobbies.contains(hobby);
-                        return _buildCustomHobbyChip(hobby, isSelected);
+                        return CustomSelectableChip(
+                          label: hobby,
+                          isSelected: isSelected,
+                          onTap: () {
+                            setState(() {
+                              if (isSelected) {
+                                selectedHobbies.remove(hobby);
+                              } else {
+                                selectedHobbies.add(hobby);
+                              }
+                            });
+                          },
+                          onDelete: () {
+                            setState(() {
+                              customHobbies.remove(hobby);
+                              selectedHobbies.remove(hobby);
+                            });
+                          },
+                        );
                       }),
                     ],
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
                   DirectInputField(
                     controller: _inputController,
                     onAdd: _addCustomHobby,
@@ -98,74 +130,7 @@ class _Step5WidgetState extends State<Step5Widget> {
     );
   }
 
-  Widget _buildHobbyChip(String label, bool isSelected) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          if (isSelected) selectedHobbies.remove(label);
-          else selectedHobbies.add(label);
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.deepYellow : Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: isSelected ? AppColors.deepYellow : AppColors.lightGrey1),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black87,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildCustomHobbyChip(String label, bool isSelected) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          if (isSelected) selectedHobbies.remove(label);
-          else selectedHobbies.add(label);
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.only(left: 16, top: 10, bottom: 10, right: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.deepYellow : Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(color: isSelected ? AppColors.deepYellow : AppColors.lightGrey1),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black87,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            const SizedBox(width: 4),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  customHobbies.remove(label);
-                  selectedHobbies.remove(label);
-                });
-              },
-              child: Icon(
-                Icons.close,
-                size: 18,
-                color: isSelected ? Colors.white : AppColors.darkGrey,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
+
 }

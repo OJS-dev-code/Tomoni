@@ -24,21 +24,25 @@ class DirectInputField extends StatelessWidget {
             controller: controller,
             cursorColor: AppColors.darkGrey,
             decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
+
               hintText: hintText,
               hintStyle: const TextStyle(color: AppColors.lightGrey1),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.lightGrey1),
+                borderSide: BorderSide.none,
+
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.lightGrey1),
+                borderSide: BorderSide.none,
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: AppColors.primary,
+                  color: AppColors.deepYellow,
                   width: 2,
                 ),
               ),
@@ -46,13 +50,19 @@ class DirectInputField extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        ElevatedButton(
+        FilledButton(
           onPressed: onAdd,
-          style: ElevatedButton.styleFrom(
+          style: FilledButton.styleFrom(
+            minimumSize: const Size(72, 56),
             backgroundColor: AppColors.navy,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(
+              vertical: 16,
+              horizontal: 20,
+            ),
           ),
           child: const Text("추가"),
         ),

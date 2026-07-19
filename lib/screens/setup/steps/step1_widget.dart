@@ -27,7 +27,7 @@ class _Step1WidgetState extends State<Step1Widget> {
 
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -53,7 +53,7 @@ class _Step1WidgetState extends State<Step1Widget> {
               ),
             ],
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 32),
           const Text("생년월일", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
 
@@ -77,11 +77,8 @@ class _Step1WidgetState extends State<Step1Widget> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: AppColors.border,
-                  width: 1,
-                ),
+                borderRadius: BorderRadius.circular(12),
+
               ),
               child: Row(
                 children: [
@@ -150,7 +147,7 @@ class _Step1WidgetState extends State<Step1Widget> {
           border: Border.all(
             color: isSelected
                 ? AppColors.deepYellow
-                : AppColors.border,
+                : Colors.transparent,
             width: isSelected? 2 : 1,
           ),
         ),

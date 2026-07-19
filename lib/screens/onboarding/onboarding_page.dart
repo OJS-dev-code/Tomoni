@@ -133,16 +133,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                 ),
                               ),
 
-                              const SizedBox(height: 50),
+                              const SizedBox(height: 40),
 
                               if (index == items.length - 1)
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
+                                FilledButton(
+                                  style: FilledButton.styleFrom(
                                     backgroundColor: AppColors.deepYellow,
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 50,
-                                      vertical: 14,
+                                      horizontal: 60,
+                                      vertical: 16,
                                     ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(30),
@@ -155,10 +155,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                     );
                                   },
                                   child: const Text(
-                                    "시작하기",
+                                    '시작하기',
                                     style: TextStyle(
                                       fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ),

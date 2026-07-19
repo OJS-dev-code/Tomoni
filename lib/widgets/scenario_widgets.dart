@@ -23,7 +23,10 @@ class ScenarioPageLayout extends StatelessWidget {
       backgroundColor: AppColors.background,
 
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 16,
+        ),
         child: Column(
           children: [
             Align(

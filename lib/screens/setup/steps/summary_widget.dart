@@ -68,7 +68,7 @@ class _SummaryWidgetState extends State<SummaryWidget> {
     String hobbiesText = (widget.data['hobbies'] as Set<String>).join(', ');
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -113,12 +113,12 @@ class _SummaryWidgetState extends State<SummaryWidget> {
   Widget _buildSummaryItem(String title, String content) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.lightGrey1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.transparent),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

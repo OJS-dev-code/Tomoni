@@ -22,45 +22,51 @@ class NoteItem extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20), // 라운드 제거
-          border: Border.all(
-            color: AppColors.border,
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(12), // 라운드 제거
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            // 첫 번째 줄: 날짜
-            Text(
-              DateFormat('MM.dd').format(note.date),
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
-            ),
-            const SizedBox(height: 4),
-            // 두 번째 줄: 주제 + 점수
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    note.topic,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                // 날짜
+                Text(
+                  DateFormat('MM.dd').format(note.date),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(height: 8),
+
+                // 대화 주제
                 Text(
-                  "${note.score} / 5",
-                  style: const TextStyle(fontSize: 18, color: Colors.black87),
+                  note.topic,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF222222),
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
+
+            Positioned(
+              right: 0,
+              top: 17,
+              child: Text(
+                "${note.score} / 5",
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF807019),
+                ),
+              ),
+            ),
           ],
-        ),
+        )
       ),
     );
   }

@@ -73,16 +73,16 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: AppColors.background,
       appBar: AppBar(backgroundColor: AppColors.background, elevation: 0),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 30.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
             const Text(
               "로그인",
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 50),
+            const SizedBox(height: 40),
             _buildTextField("이메일", _emailController, false),
             const SizedBox(height: 20),
             _buildTextField("비밀번호", _passwordController, true),
@@ -157,8 +157,8 @@ class _LoginPageState extends State<LoginPage> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
-                color: AppColors.primary,
-                width: 2,
+                color: AppColors.deepYellow,
+                width: 1.5,
               ),
             ),
           ),

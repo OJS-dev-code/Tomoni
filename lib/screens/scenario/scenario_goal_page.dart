@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tomoni/constants/app_constants.dart';
 
 import '../../services/api_service.dart';
 import '../../services/scenario_service.dart';
@@ -69,10 +70,12 @@ class _ScenarioGoalPageState extends State<ScenarioGoalPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected ? _selectedColor : Colors.grey.shade300,
-              width: isSelected ? 2 : 1,
-            ),
+            border: isSelected
+                ? Border.all(
+              color: _selectedColor,
+              width: 1.5,
+            )
+                : null,
           ),
           child: Row(
             children: [
@@ -124,7 +127,7 @@ class _ScenarioGoalPageState extends State<ScenarioGoalPage> {
                 Text(
                   widget.topic,
                   style: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: _selectedColor,
                   ),
@@ -139,10 +142,20 @@ class _ScenarioGoalPageState extends State<ScenarioGoalPage> {
                   "이번 대화에서 달성하고 싶은\n목표를 선택해보세요.",
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
-                const SizedBox(height: 24),
-                const Text(
-                  "🎯 AI의 추천 목표",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                const SizedBox(height: 32),
+                const Row(
+                  children: [
+                    Icon(
+                      Icons.auto_awesome,
+                      size: 18,
+                      color: _selectedColor,
+                    ),
+                    SizedBox(width: 6),
+                    Text(
+                      "AI의 추천 목표",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 if (recommendations.isEmpty)
@@ -152,7 +165,6 @@ class _ScenarioGoalPageState extends State<ScenarioGoalPage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade300),
                     ),
                     child: const Text(
                       "이 주제에 맞는 추천 목표가 없습니다. 아래에서 직접 입력해주세요.",
@@ -161,10 +173,20 @@ class _ScenarioGoalPageState extends State<ScenarioGoalPage> {
                   )
                 else
                   ...recommendations.map(_buildGoalCard),
-                const SizedBox(height: 24),
-                const Text(
-                  "✏ 직접 목표 입력하기",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                const SizedBox(height: 32),
+                const Row(
+                  children: [
+                    Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: _selectedColor,
+                    ),
+                    SizedBox(width: 6),
+                    Text(
+                      "직접 목표 입력하기",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -172,12 +194,25 @@ class _ScenarioGoalPageState extends State<ScenarioGoalPage> {
                     Expanded(
                       child: TextField(
                         controller: _controller,
+                        cursorColor: AppColors.deepYellow, // 커서 색
                         decoration: InputDecoration(
                           hintText: "달성하고 싶은 목표를 입력하세요",
                           filled: true,
                           fillColor: Colors.white,
-                          border: OutlineInputBorder(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 18,
+                          ),
+                          enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: _selectedColor,
+                              width: 1.5,
+                            ),
                           ),
                         ),
                       ),
@@ -202,7 +237,7 @@ class _ScenarioGoalPageState extends State<ScenarioGoalPage> {
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: const Text("추가"),
@@ -210,7 +245,7 @@ class _ScenarioGoalPageState extends State<ScenarioGoalPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 ...customGoals.map(_buildGoalCard),
               ],
             ),

@@ -25,18 +25,30 @@ class CustomToggle extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black),
-        ),
-        if (subtitle != null) ...[
-          const SizedBox(height: 4),
+        if (title.isNotEmpty) ...[
           Text(
-            subtitle!,
-            style: const TextStyle(fontSize: 12, color: Colors.black54),
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
           ),
         ],
-        const SizedBox(height: 12),
+
+        if (subtitle != null && subtitle!.isNotEmpty) ...[
+          if (title.isNotEmpty) const SizedBox(height: 4),
+          Text(
+            subtitle!,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.black54,
+            ),
+          ),
+        ],
+
+        if (title.isNotEmpty || (subtitle != null && subtitle!.isNotEmpty))
+          const SizedBox(height: 12),
         Container(
           height: 50,
           padding: const EdgeInsets.all(4),
