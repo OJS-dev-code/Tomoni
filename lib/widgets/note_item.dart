@@ -52,19 +52,31 @@ class NoteItem extends StatelessWidget {
                 ),
               ],
             ),
-
             Positioned(
               right: 0,
-              top: 17,
-              child: Text(
-                "${note.score} / 5",
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF807019),
-                ),
+              top: 13,
+              child: Row(
+                children: [
+                  Text(
+                    "${note.score} / 5",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF807019),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    size: 25,
+                    color: Colors.black45,
+                  ),
+                ],
               ),
             ),
+
           ],
         )
       ),

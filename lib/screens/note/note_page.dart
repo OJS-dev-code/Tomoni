@@ -226,81 +226,101 @@ class _NotePageState extends State<NotePage> {
     child: Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-            Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "피드백 노트",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF807019),
-                    ),
-                  ),
+      const Text(
+        "피드백 노트",
+        style: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF807019),
+        ),
+      ),
 
-                  Row(
-                    children: [
-                      _buildSortButton("날짜 순", "date"),
-                      const Text(" | "),
-                      _buildSortButton("점수 순", "score"),
-                    ],
-                  ),
-                ],
-              ),
-
-            const SizedBox(height: 12),
-            Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
+      const SizedBox(height: 12),
+      Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            // 왼쪽
+            Expanded(
+              child: GestureDetector(
+                onTap: _showMonthPickerSheet,
+                behavior: HitTestBehavior.opaque,
                 child: Row(
                   children: [
-                    IconButton(
-                      onPressed: () => _changeMonth(-1),
-                      icon: const Icon(Icons.chevron_left, color: AppColors.darkGrey),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                    const Icon(
+                      Icons.calendar_month_outlined,
+                      size: 22,
+                      color: AppColors.deepYellow,
                     ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: _showMonthPickerSheet,
-                        behavior: HitTestBehavior.opaque,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              DateFormat('yyyy년 M월').format(filterDate),
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.calendar_today_outlined,
-                              size: 18,
-                              color: Colors.black.withValues(alpha: 0.45),
-                            ),
-                          ],
-                        ),
+                    const SizedBox(width: 12),
+
+                    Text(
+                      DateFormat('yyyy년 M월').format(filterDate),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () => _changeMonth(1),
-                      icon: const Icon(Icons.chevron_right, color: AppColors.darkGrey),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
                     ),
                   ],
                 ),
               ),
+            ),
 
+            // 오른쪽 화살표
+            IconButton(
+              onPressed: () => _changeMonth(-1),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: const Icon(
+                Icons.chevron_left,
+                color: AppColors.darkGrey,
+                size: 30,
+              ),
+            ),
+
+            const SizedBox(width: 8),
+
+            IconButton(
+              onPressed: () => _changeMonth(1),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: const Icon(
+                Icons.chevron_right,
+                color: AppColors.darkGrey,
+                size: 30,
+              ),
+            ),
+          ],
+        ),
+      ),
+      //const SizedBox(height: 12),
+
+      const Divider(
+        height: 1,
+        thickness: 1,
+        color: AppColors.border,
+      ),
+
+      const SizedBox(height: 20),
+
+      Align(
+        alignment: Alignment.centerRight,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSortButton("날짜 순", "date"),
+            const Text(" | "),
+            _buildSortButton("점수 순", "score"),
+          ],
+        ),
+      ),
             const SizedBox(height: 12),
             Expanded(
               child: _isLoading

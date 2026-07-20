@@ -24,35 +24,33 @@ class NoteDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: SvgPicture.asset(
-                      AppIcons.previousNoBg,
-                      width: 32,
-                      height: 32,
-                    ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back),
+                    color: Colors.black87,
+                    splashRadius: 20,
                   ),
                   Text(
                     DateFormat('yyyy.MM.dd').format(note.date),
                     style: const TextStyle(
                       color: AppColors.black,
-                      fontSize: 20,
+                      fontSize: 16,
                       fontWeight: FontWeight.normal,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
               Center(
                 child: Column(
                   children: [
@@ -66,19 +64,25 @@ class NoteDetailPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(5, (index) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
                           child: SvgPicture.asset(
                             index < note.score ? AppIcons.starFull : AppIcons.starEmpty,
-                            width: 45,
-                            height: 45,
+                            width: 25,
+                            height: 25,
                           ),
                         );
                       }),
                     ),
+                    const SizedBox(height: 20),
+
+                    const Divider(
+                      thickness: 1,
+                      color: AppColors.border,
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 20),
               if (note.hintResponses.isNotEmpty) ...[
                 const Text(
                   '힌트대로 답한 표현 :',
@@ -98,21 +102,29 @@ class NoteDetailPage extends StatelessWidget {
                 }),
                 const SizedBox(height: 28),
               ],
-              const Text(
-                '피드백 :',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.fact_check_outlined,
+                    size: 22,
+                    color: AppColors.deepYellow,
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    '피드백',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.black,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
-              const Divider(height: 1, thickness: 1, color: Colors.black12),
               ...note.items.asMap().entries.map((entry) {
                 final idx = entry.key;
                 final item = entry.value;
-                return Column(
-                  children: [
-                    _buildFeedbackAccordion(idx + 1, item),
-                    const Divider(height: 1, thickness: 1, color: Colors.black12),
-                  ],
-                );
+                return _buildFeedbackAccordion(idx + 1, item);
               }),
               if (showHomeButton) ...[
                 const SizedBox(height: 36),
@@ -155,13 +167,13 @@ class NoteDetailPage extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 item.hintText,
-                style: const TextStyle(color: AppColors.pinkyRed, fontSize: 16, height: 1.4),
+                style: const TextStyle(color: AppColors.deepBrown, fontSize: 16, height: 1.4),
               ),
               if (item.hintPronunciation.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
                   item.hintPronunciation,
-                  style: const TextStyle(color: Colors.blueAccent, fontSize: 15, height: 1.4),
+                  style: const TextStyle(color: AppColors.deepYellow, fontSize: 15, height: 1.4),
                 ),
               ],
               if (item.hintTranslation.isNotEmpty) ...[
@@ -179,7 +191,7 @@ class NoteDetailPage extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 item.userText,
-                style: const TextStyle(color: AppColors.egyptianBlue, fontSize: 16, height: 1.4),
+                style: const TextStyle(color: AppColors.deepBrown, fontSize: 16, height: 1.4),
               ),
             ],
           ),
@@ -187,55 +199,114 @@ class NoteDetailPage extends StatelessWidget {
       ],
     );
   }
-
   Widget _buildFeedbackAccordion(int index, FeedbackItem item) {
-    return ExpansionTile(
-      shape: const Border(),
-      collapsedShape: const Border(),
-      title: Text(
-        '($index) ${item.title}',
-        style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkGrey),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
       ),
-      iconColor: AppColors.darkGrey,
-      collapsedIconColor: AppColors.darkGrey,
-      tilePadding: EdgeInsets.zero,
-      childrenPadding: const EdgeInsets.only(bottom: 20),
-      children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (item.description != null) ...[
-                Text(
-                  item.description!,
-                  style: const TextStyle(fontSize: 15, color: Colors.black87, height: 1.5),
+      child: ExpansionTile(
+        shape: const Border(),
+        collapsedShape: const Border(),
+        tilePadding: const EdgeInsets.symmetric(horizontal: 20),
+        childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        iconColor: AppColors.darkGrey,
+        collapsedIconColor: AppColors.darkGrey,
+        title: Row(
+          children: [
+            Container(
+              width: 25,
+              height: 25,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFFFF1CC),
+              ),
+              child: Center(
+                child: Text(
+                  '$index',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: AppColors.black,
+                  ),
                 ),
-                const SizedBox(height: 20),
-              ],
-              if (item.japanese.isNotEmpty) ...[
-                Text(
-                  item.japanese,
-                  style: const TextStyle(color: AppColors.pinkyRed, fontSize: 16, height: 1.4),
+              ),
+            ),
+
+            const SizedBox(width: 12),
+
+            Expanded(
+              child: Text(
+                item.title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.black,
+                  fontSize: 16,
                 ),
-                const SizedBox(height: 8),
-              ],
-              if (item.pronunciation.isNotEmpty) ...[
-                Text(
-                  item.pronunciation,
-                  style: const TextStyle(color: Colors.blueAccent, fontSize: 15, height: 1.4),
-                ),
-                const SizedBox(height: 8),
-              ],
-              if (item.translation.isNotEmpty)
-                Text(
-                  item.translation,
-                  style: const TextStyle(color: AppColors.darkGrey, fontSize: 15, height: 1.4),
-                ),
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
-      ],
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (item.description != null) ...[
+                  Text(
+                    item.description!,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: Colors.black87,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+                const Divider(
+                  height: 24,
+                  thickness: 1,
+                  color: AppColors.border,
+                ),
+                if (item.japanese.isNotEmpty) ...[
+                  Text(
+                    item.japanese,
+                    style: const TextStyle(
+                      color: AppColors.deepBrown,
+                      fontSize: 16,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+
+                if (item.pronunciation.isNotEmpty) ...[
+                  Text(
+                    item.pronunciation,
+                    style: const TextStyle(
+                      color: AppColors.deepYellow,
+                      fontSize: 15,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+
+                if (item.translation.isNotEmpty)
+                  Text(
+                    item.translation,
+                    style: const TextStyle(
+                      color: AppColors.darkGrey,
+                      fontSize: 15,
+                      height: 1.4,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
