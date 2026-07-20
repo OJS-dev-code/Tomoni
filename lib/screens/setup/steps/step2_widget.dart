@@ -91,7 +91,7 @@ class _Step2WidgetState extends State<Step2Widget> {
                           color: isSelected
                               ? AppColors.deepYellow
                               : Colors.transparent,
-                          width: isSelected ? 2 : 1,
+                          width: 1.5,
                         ),
                       ),
                       child: Row(

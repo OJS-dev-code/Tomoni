@@ -110,7 +110,7 @@ class _ChatBubbleState extends State<ChatBubble> {
                         padding: const EdgeInsets.only(bottom: 2), // 밑줄과의 간격
                         decoration: const BoxDecoration(
                           border: Border(
-                            bottom: BorderSide(color: AppColors.egyptianBlue, width: 0.8),
+                            bottom: BorderSide(color: AppColors.deepBrown, width: 0.8),
                           ),
                         ),
                         child: const Text(

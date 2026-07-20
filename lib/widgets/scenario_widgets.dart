@@ -25,7 +25,7 @@ class ScenarioPageLayout extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
           horizontal: 24,
-          vertical: 16,
+          vertical: 18,
         ),
         child: Column(
           children: [

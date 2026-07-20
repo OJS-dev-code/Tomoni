@@ -171,7 +171,6 @@ class _ScenarioTopicPageState extends State<ScenarioTopicPage> {
                 ...recommendations.asMap().entries.map(
                       (entry) => _buildTopicCard(
                         entry.value,
-                        prefix: "(${entry.key + 1})",
                       ),
                     ),
                 const SizedBox(height: 32),

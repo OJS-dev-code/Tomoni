@@ -20,7 +20,7 @@ class TopLoadingBar extends StatelessWidget {
       child: LinearProgressIndicator(
         backgroundColor: backgroundColor ?? AppColors.lightGrey1,
         valueColor: AlwaysStoppedAnimation<Color>(
-          valueColor ?? AppColors.primary,
+          valueColor ?? AppColors.deepYellow,
         ),
         minHeight: 3,
       ),

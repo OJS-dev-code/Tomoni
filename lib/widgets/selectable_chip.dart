@@ -29,7 +29,7 @@ class SelectableChip extends StatelessWidget {
             color: isSelected
                 ? AppColors.deepYellow
                 : Colors.transparent,
-            width: 2,
+            width: 1.5,
           ),
         ),
         child: Text(

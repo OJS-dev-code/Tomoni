@@ -43,7 +43,7 @@ class DirectInputField extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
                   color: AppColors.deepYellow,
-                  width: 2,
+                  width: 1.5,
                 ),
               ),
             ),

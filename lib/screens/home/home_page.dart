@@ -33,12 +33,14 @@ class HomePage extends StatelessWidget {
           children: [
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 border: Border(
-                  bottom: BorderSide(color: Color(0xFFE5E5E5)),
-                ),
+                  bottom: BorderSide(
+                    color: AppColors.border,
+                    width: 0.5,
+                  ),                ),
               ),
               child: const Align(
                 alignment: Alignment.centerLeft,

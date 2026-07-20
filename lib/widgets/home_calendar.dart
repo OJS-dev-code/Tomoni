@@ -201,7 +201,7 @@ class _CalendarHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const headerStyle = TextStyle(
-      fontSize: 16,
+      fontSize: 15,
       fontWeight: FontWeight.bold,
       color: Colors.black87,
     );
@@ -263,7 +263,7 @@ class _WeekCalendarRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
+    const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
     final today = DateTime.now();
 
     return Column(
@@ -271,13 +271,13 @@ class _WeekCalendarRow extends StatelessWidget {
         Row(
           children: weekDays.map((day) {
             Color textColor = AppColors.darkGrey;
-            if (day == '日') textColor = AppColors.pinkyRed;
-            if (day == '土') textColor = AppColors.primary;
+            if (day == '일') textColor = AppColors.deepYellow;
+            if (day == '토') textColor = AppColors.navy;
             return Expanded(
               child: Text(
                 day,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, color: textColor),
+                style: TextStyle(fontSize: 15, color: textColor),
               ),
             );
           }).toList(),
@@ -302,11 +302,11 @@ class _WeekCalendarRow extends StatelessWidget {
 
             Color? noteColor;
             if (noteCount == 1) {
-              noteColor = AppColors.pastelGreen;
+              noteColor = const Color(0xFFF8F2D9);
             } else if (noteCount == 2) {
-              noteColor = AppColors.pastelYellow;
+              noteColor = const Color(0xFFF1E2A3);
             } else if (noteCount >= 3) {
-              noteColor = AppColors.heavyYellow;
+              noteColor = const Color(0xFFE8D27A);
             }
 
             return Expanded(
@@ -330,9 +330,9 @@ class _WeekCalendarRow extends StatelessWidget {
                         fontSize: 16,
                         fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
                         color: holiday
-                            ? AppColors.pinkyRed
+                            ? AppColors.deepYellow
                             : (current.weekday == 6
-                                ? AppColors.primary
+                                ? AppColors.navy
                                 : Colors.black87),
                       ),
                     ),

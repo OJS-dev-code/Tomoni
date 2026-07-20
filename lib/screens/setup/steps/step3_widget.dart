@@ -51,7 +51,7 @@ class _Step3WidgetState extends State<Step3Widget> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected ? AppColors.deepYellow : Colors.transparent,
-                        width: isSelected ? 2 : 1,
+                        width: 1.5,
                       ),
                     ),
                     child: Row(

@@ -567,21 +567,16 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: const SizedBox(
-                          width: 44,
-                          height: 44,
-                          child: Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            size: 26,
-                            color: AppColors.deepYellow,
-                          ),
-                        ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back),
+                        color: Colors.black87,
+                        splashRadius: 20,
+                        tooltip: '뒤로가기',
                       ),
 
                       _buildTopButton(
@@ -624,7 +619,7 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
                               const SizedBox(width: 2),
                               const Icon(
                                 Icons.chevron_right,
-                                size: 18,
+                                size: 20,
                                 color: AppColors.deepYellow,
                               ),
                             ],

@@ -148,7 +148,7 @@ class _Step1WidgetState extends State<Step1Widget> {
             color: isSelected
                 ? AppColors.deepYellow
                 : Colors.transparent,
-            width: isSelected? 2 : 1,
+            width: 1.5,
           ),
         ),
         child: Column(
