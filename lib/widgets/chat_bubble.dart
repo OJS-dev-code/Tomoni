@@ -8,7 +8,7 @@ class ChatBubble extends StatefulWidget {
   final String? translation;
   final bool isAI;
   final bool isRecommended;
-  
+
   // 사용자 설정에 따른 초기값
   final bool showJapaneseInitially;
   final bool showTranslationInitially;
@@ -57,7 +57,7 @@ class _ChatBubbleState extends State<ChatBubble> {
 
   @override
   Widget build(BuildContext context) {
-    Color japaneseColor = AppColors.egyptianBlue;
+    Color japaneseColor = AppColors.deepBrown;
     if (!widget.isAI && widget.isRecommended) {
       japaneseColor = AppColors.red;
     }
@@ -75,15 +75,21 @@ class _ChatBubbleState extends State<ChatBubble> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: Colors.white,
+                  color: widget.isAI
+                      ? const Color(0xFFFFFCF3)
+                      : const Color(0xFFFFEB99),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
                   bottomLeft: Radius.circular(widget.isAI ? 4 : 16),
                   bottomRight: Radius.circular(widget.isAI ? 16 : 4),
                 ),
-                border: Border.all(color: Colors.black12),
-              ),
+                border: Border.all(
+                  color: widget.isAI
+                      ? const Color(0xFFE5DED0)
+                      : const Color(0xFFF2C94C),
+                  width: 1.2,
+                ),              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -112,19 +118,19 @@ class _ChatBubbleState extends State<ChatBubble> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.egyptianBlue,
+                            color: AppColors.deepBrown,
                           ),
                         ),
                       ),
                     ),
-                  
+
                   // 2. 발음 표시 (발음 버튼으로 토글)
                   if (widget.pronunciation != null && isPronunciationVisible) ...[
                     const SizedBox(height: 6),
                     Text(
                       widget.pronunciation!,
                       style: const TextStyle(
-                        color: AppColors.sapphireBlue,
+                        color: AppColors.deepYellow,
                         fontSize: 14,
                       ),
                     ),
@@ -143,7 +149,7 @@ class _ChatBubbleState extends State<ChatBubble> {
                   ],
 
                   const SizedBox(height: 12),
-                  
+
                   // 4. 하단 버튼 영역 (통합된 디자인)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,

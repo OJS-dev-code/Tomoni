@@ -55,8 +55,10 @@ class _HintPanelState extends State<HintPanel> {
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.97),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.red, width: 1.5),
-        boxShadow: [
+        border: Border.all(
+          color: AppColors.border,
+          width: 1.5,
+        ),        boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 12,
@@ -69,13 +71,13 @@ class _HintPanelState extends State<HintPanel> {
         children: [
           const Row(
             children: [
-              Icon(Icons.lightbulb_outline, size: 18, color: AppColors.red),
+              Icon(Icons.lightbulb_outline, size: 18, color: AppColors.deepYellow),
               SizedBox(width: 6),
               Text(
                 'AI 추천 답변',
                 style: TextStyle(
                   fontSize: 13,
-                  color: AppColors.red,
+                  color: AppColors.deepYellow,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -86,7 +88,7 @@ class _HintPanelState extends State<HintPanel> {
             Text(
               widget.text,
               style: const TextStyle(
-                color: AppColors.red,
+                color: AppColors.deepBrown,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 height: 1.45,
@@ -99,7 +101,7 @@ class _HintPanelState extends State<HintPanel> {
                 padding: const EdgeInsets.only(bottom: 2),
                 decoration: const BoxDecoration(
                   border: Border(
-                    bottom: BorderSide(color: AppColors.red, width: 0.8),
+                    bottom: BorderSide(color: AppColors.deepBrown, width: 0.8),
                   ),
                 ),
                 child: const Text(
@@ -107,7 +109,7 @@ class _HintPanelState extends State<HintPanel> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.red,
+                    color: AppColors.deepBrown,
                   ),
                 ),
               ),
@@ -117,7 +119,7 @@ class _HintPanelState extends State<HintPanel> {
             Text(
               widget.pronunciation!,
               style: const TextStyle(
-                color: AppColors.sapphireBlue,
+                color: AppColors.deepYellow,
                 fontSize: 15,
                 height: 1.4,
               ),

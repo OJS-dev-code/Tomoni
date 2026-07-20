@@ -4,6 +4,8 @@ class AppColors {
 
   static const Color primary = Color(0xFFffd966);
   static const Color deepYellow = Color(0xFF807019);
+  static const Color deepBrown = Color(0xFF4A3D00);
+
   static const Color deepYellow3 = Color(0xFF8A6A00);
   static const Color deepYellow2 = Color(0xFF735c00);
   static const Color background = Color(0xFFF5F2EE);

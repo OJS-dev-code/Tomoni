@@ -31,6 +31,7 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
   final AudioService _audioService = AudioService.instance;
   final ScrollController _scrollController = ScrollController();
   final List<Map<String, dynamic>> _messages = [];
+  final TextEditingController _textController = TextEditingController();
   Map<String, dynamic>? _availableHint;
   bool _hintVisible = false;
   bool _isSending = false;
@@ -96,6 +97,7 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
   void dispose() {
     _pulseController.dispose();
     _scrollController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
@@ -557,13 +559,9 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset(
-            _backgroundAsset,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) =>
-                Container(color: AppColors.sapphireBlue),
+          Container(
+            color: AppColors.background,
           ),
-          Container(color: Colors.black.withValues(alpha: 0.12)),
 
           SafeArea(
             child: Column(
@@ -573,51 +571,63 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildTopButton('취소', () => Navigator.pop(context)),
-                      _buildTopButton('대화종료', () => _endSession()),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const SizedBox(
+                          width: 44,
+                          height: 44,
+                          child: Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            size: 26,
+                            color: AppColors.deepYellow,
+                          ),
+                        ),
+                      ),
+
+                      _buildTopButton(
+                        '대화종료',
+                            () => _endSession(),
+                      ),
                     ],
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
                   child: Row(
                     children: [
                       Expanded(
                         child: Text(
-                          '${widget.session.location} · AI: ${widget.session.aiRole}',
-                          style: const TextStyle(color: Colors.white, fontSize: 12),
+                          '장소: ${widget.session.location} | AI 역할: ${widget.session.aiRole}',
+                          style: const TextStyle(color: AppColors.deepYellow, fontSize: 12, fontWeight: FontWeight.bold),
                         ),
                       ),
                       if (totalGoals > 0)
                         GestureDetector(
                           onTap: _showGoalsSheet,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.92),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.flag_outlined,
-                                  size: 14,
-                                  color: AppColors.egyptianBlue,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.flag_outlined,
+                                size: 18,
+                                color: AppColors.deepYellow,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '목표 ${_completedGoalIndices.length}/$totalGoals',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.black,
                                 ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '목표 ${_completedGoalIndices.length}/$totalGoals',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(width: 2),
+                              const Icon(
+                                Icons.chevron_right,
+                                size: 18,
+                                color: AppColors.deepYellow,
+                              ),
+                            ],
                           ),
                         ),
                     ],
@@ -632,33 +642,40 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.94),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+                        border: Border.all(color: AppColors.border),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Row(
                             children: [
-                              Icon(Icons.movie_filter_outlined, size: 16, color: AppColors.egyptianBlue),
+                              Icon(Icons.movie_filter_outlined, size: 20, color: AppColors.deepYellow),
                               SizedBox(width: 6),
                               Text(
                                 '상황',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.egyptianBlue,
+                                  color: AppColors.deepYellow,
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 6),
+                          // 분리선
+                          Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: AppColors.border,
+                          ),
+                          const SizedBox(height: 6),
                           Text(
                             widget.session.sceneNote,
-                            style: const TextStyle(fontSize: 14, height: 1.4),
+                            style: const TextStyle(fontSize: 14, height: 1.4, fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(height: 6),
                           const Text(
-                            '당신이 먼저 말을 걸어주세요',
+                            '먼저 일본어로 말을 걸어주세요',
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.darkGrey,
@@ -743,16 +760,7 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
             height: _micAreaHeight,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.white.withValues(alpha: 0),
-                    Colors.white.withValues(alpha: 0.55),
-                    Colors.white.withValues(alpha: 0.92),
-                  ],
-                  stops: const [0.0, 0.45, 1.0],
-                ),
+                color: Colors.transparent,
               ),
               child: SafeArea(
                 top: false,
@@ -801,7 +809,7 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
                         child: Text(
                           _isPlayingAiSpeech ? 'AI가 말하는 중…' : '재생 중…',
                           style: const TextStyle(
-                            color: AppColors.egyptianBlue,
+                            color: AppColors.darkGrey,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -813,7 +821,7 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
                         child: Text(
                           _micStatusLabel(),
                           style: TextStyle(
-                            color: _isRecording ? AppColors.red : AppColors.darkGrey,
+                            color: _isRecording ? AppColors.deepYellow : AppColors.darkGrey,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -821,10 +829,10 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
                       ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const SizedBox(width: 56),
-                        const SizedBox(width: 28),
+                        _buildKeyboardButton(),
+                        const SizedBox(width: 36),
                         GestureDetector(
                           onTap: micEnabled ? _toggleRecording : null,
                           child: SizedBox(
@@ -846,7 +854,7 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
                                       height: 96,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: AppColors.red.withValues(alpha: 0.15),
+                                        color: AppColors.deepYellow.withValues(alpha: 0.15),
                                       ),
                                     ),
                                   ),
@@ -855,7 +863,7 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
                             ),
                           ),
                         ),
-                        const SizedBox(width: 28),
+                        const SizedBox(width: 36),
                         _buildHintButton(hintAvailable),
                       ],
                     ),
@@ -920,9 +928,9 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
 
   String _micStatusLabel() {
     if (_isRecording) return '녹음 중 · 탭하면 종료';
-    if (_waitingForUserStart) return '빨간 버튼을 눌러 먼저 말해보세요';
+    if (_waitingForUserStart) return '녹음 버튼을 눌러 먼저 말해보세요';
     if (_availableHint != null && !_hintVisible) return '말하기 어려우면 힌트 버튼을 눌러보세요';
-    return '빨간 버튼을 눌러 녹음';
+    return '';//'빨간 버튼을 눌러 녹음';
   }
 
   Widget _buildHintButton(bool hintAvailable) {
@@ -943,14 +951,8 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: _hintVisible
-                  ? AppColors.red.withValues(alpha: 0.12)
-                  : Colors.white.withValues(alpha: 0.95),
-              border: Border.all(
-                color: enabled
-                    ? (_hintVisible ? AppColors.red : AppColors.primary)
-                    : AppColors.lightGrey2,
-                width: _hintVisible ? 2.5 : 2,
-              ),
+                  ? const Color(0xFFFFF7D6)
+                  : Colors.white,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.06),
@@ -963,10 +965,8 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
               alignment: Alignment.center,
               children: [
                 Icon(
-                  _hintVisible ? Icons.lightbulb : Icons.lightbulb_outline,
-                  color: enabled
-                      ? (_hintVisible ? AppColors.red : AppColors.primary)
-                      : AppColors.lightGrey2,
+                  Icons.lightbulb_outline,
+                  color: AppColors.deepYellow,
                   size: 28,
                 ),
                 if (hintAvailable && !_hintVisible)
@@ -977,7 +977,7 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
                       width: 8,
                       height: 8,
                       decoration: const BoxDecoration(
-                        color: AppColors.red,
+                        color: AppColors.primary,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -990,100 +990,231 @@ class _ScenarioChatPageState extends State<ScenarioChatPage>
     );
   }
 
-  Widget _buildMicButton(bool enabled) {
-    if (_isTranscribing || _isSending || _isPreparingAiResponse) {
-      return Container(
-        width: 72,
-        height: 72,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white.withValues(alpha: 0.95),
-          border: Border.all(color: AppColors.lightGrey2, width: 2),
-        ),
-        child: const Padding(
-          padding: EdgeInsets.all(20),
-          child: CircularProgressIndicator(strokeWidth: 2.5),
-        ),
-      );
-    }
+  Widget _buildKeyboardButton() {
+    final enabled = !_isSending &&
+        !_isPreparingAiResponse &&
+        !_isRecording &&
+        !_isTranscribing &&
+        !_sessionEnded &&
+        !_isPlayingAudio;
 
-    if (_isRecording) {
-      return Container(
-        width: 72,
-        height: 72,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: AppColors.red,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.red.withValues(alpha: 0.35),
-              blurRadius: 14,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: Center(
+    return SizedBox(
+      width: 56,
+      height: 56,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: enabled ? _showKeyboardInput : null,
+          borderRadius: BorderRadius.circular(28),
           child: Container(
-            width: 26,
-            height: 26,
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5),
-            ),
-          ),
-        ),
-      );
-    }
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.95),
 
-    return Container(
-      width: 72,
-      height: 72,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withValues(alpha: 0.95),
-        border: Border.all(
-          color: enabled ? AppColors.red.withValues(alpha: 0.5) : AppColors.lightGrey2,
-          width: 3,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Center(
-        child: Container(
-          width: 30,
-          height: 30,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: enabled ? AppColors.red : AppColors.lightGrey2,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.keyboard_outlined,
+              color: enabled
+                  ? AppColors.deepYellow
+                  : AppColors.lightGrey2,
+              size: 28,
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTopButton(String label, VoidCallback onPressed) {
+  Widget _buildMicButton(bool enabled) {
+    if (_isRecording) {
+      return Container(
+        width: 80,
+        height: 80,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.deepYellow,
+
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.deepYellow.withValues(alpha: 0.25),
+              blurRadius: 18,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.stop_rounded,
+            color: Colors.white,
+            size: 40,
+          ),
+        ),
+      );
+    }
+
     return Container(
+      width: 80,
+      height: 80,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(6),
+        shape: BoxShape.circle,
+        color: enabled
+            ? AppColors.deepYellow
+            : AppColors.lightGrey2,
+        border: Border.all(
+          color: Colors.white,
+          width: 4,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
+      child: Center(
+        child: Icon(
+          Icons.mic_rounded,
+          size: 40,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showKeyboardInput() async {
+    _textController.clear();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
+        ),
+      ),
+        builder: (context) {
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 20,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "일본어 직접 입력",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                TextField(
+                  controller: _textController,
+                  autofocus: true,
+                  minLines: 4,
+                  maxLines: 6,
+                  decoration: InputDecoration(
+                    hintText: "일본어를 입력하세요...",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text("취소"),
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () {
+                          final text = _textController.text.trim();
+
+                          if (text.isEmpty) return;
+
+                          Navigator.pop(context);
+
+                          _sendMessage(text: text);
+
+                          _textController.clear();
+                        },
+                        child: const Text("보내기"),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+    );
+  }
+  Widget _buildTopButton(
+      String label,
+      VoidCallback onPressed,
+      ) {
+    return Material(
+      color: AppColors.deepYellow,
+      borderRadius: BorderRadius.circular(30),
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(14),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-              color: AppColors.black,
-            ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 10,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Icon(
+                Icons.exit_to_app_rounded,
+                size: 18,
+                color: Colors.white,
+              ),
+              SizedBox(width: 6),
+              Text(
+                '대화 종료',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
         ),
       ),
