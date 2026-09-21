@@ -14,20 +14,19 @@ class MainBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 72,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(
-          top: BorderSide(
-            color: Colors.black12,
-            width: 0.5,
+    return SafeArea(
+      top: false,
+      child: Container(
+        height: 72,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(
+              color: Colors.black12,
+              width: 0.5,
+            ),
           ),
         ),
-      ),
-      child: SafeArea(
-        top: false,
-        bottom: true,
         child: Row(
           children: [
             _buildNavItem(
